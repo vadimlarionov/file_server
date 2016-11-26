@@ -19,5 +19,6 @@ from admin_app import views
 
 urlpatterns = [
     url(r'^admin/', admin.site.urls),
-    url(r'^$', views.index, name='index')
+    url(r'^$', views.index),
+    url(r'^login$', views.login)
 ]
