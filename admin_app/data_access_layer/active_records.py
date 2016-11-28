@@ -10,22 +10,39 @@ class UserActiveRecord:
         self.created = None
         self.is_deleted = False
 
+    # TODO не обрабатываю вообще ничего
     def save(self):
-        pass
+        sql = 'INSERT INTO User(username, password, is_admin) VALUES (%s, %s, %s)'
+        with DbService.get_connection() as cursor:
+            cursor.execute(sql, (self.username, self.password, self.is_admin))
 
     def delete(self):
         if self.id is None:
             return
-        sql = 'UPDATE User SET is_deleted = TRUE WHERE id = %d' % int(self.id)
+        sql = 'UPDATE User SET is_deleted = TRUE WHERE id = %s'
         with DbService.get_connection() as cursor:
-            cursor.execute(sql)
+            cursor.execute(sql, (self.id,))
             self.is_deleted = True
+
+    def restore(self):
+        if self.id is None:
+            return
+        sql = 'UPDATE User SET is_deleted = FALSE WHERE id = %s'
+        with DbService.get_connection() as cursor:
+            cursor.execute(sql, (self.id,))
+            self.is_deleted = False
 
     @staticmethod
     def find(identity):
-        sql = 'SELECT * FROM User WHERE id = %d' % identity
+        try:
+            identity = int(identity)
+        except ValueError:
+            print('identity is not int, identity={}'.format(identity))
+            return
+
+        sql = 'SELECT * FROM User WHERE id = %s'
         with DbService.get_connection() as cursor:
-            cursor.execute(sql)
+            cursor.execute(sql, (identity,))
             row = cursor.fetchone()
             if row is not None:
                 print(row)
@@ -56,8 +73,18 @@ class SessionActiveRecord:
     def delete(self):
         pass
 
-    def update(self):
+    @staticmethod
+    def get_session(session_key):
+        sql = 'SELECT * FROM Session WHERE session_key = %s'
         pass
+
+    @staticmethod
+    def __deserialize__(row):
+        session = SessionActiveRecord()
+        session.session_key = row['session_key']
+        session.user_id = row['user_id']
+        session.expire_date = row['expire_date']
+        return session
 
 
 class GroupActiveRecord:

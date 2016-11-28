@@ -18,7 +18,9 @@ from django.contrib import admin
 from admin_app import views
 
 urlpatterns = [
-    url(r'^admin/', admin.site.urls),
+    # url(r'^admin/', admin.site.urls),
     url(r'^$', views.index),
-    url(r'^login$', views.login)
+    url(r'^login$', views.login),
+    url(r'^base$', views.base),
+    url(r'^admin/users/add$', views.add_user)
 ]
