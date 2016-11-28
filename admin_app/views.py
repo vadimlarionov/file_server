@@ -1,9 +1,10 @@
+from django.contrib import messages
 from django.shortcuts import render, redirect
 
+from admin_app.business_logic_layer.logic import *
+from admin_app.data_access_layer import exceptions
 from admin_app.forms import *
 from auth_utils import login_required
-from django.contrib import messages
-from admin_app.data_access_layer.active_records import *
 
 
 @login_required
@@ -36,13 +37,26 @@ def add_user(request):
     form = AddUserForm(request.POST or None)
     try:
         if request.method == 'POST' and form.is_valid():
-            user = UserActiveRecord()
-            user.username = form.cleaned_data['username']
-            user.password = form.cleaned_data['password']
-            user.is_admin = bool(form.cleaned_data['is_admin'])
-            user.save()
-            messages.success(request, 'Пользователь {} создан'.format(form.cleaned_data['username']))
+            user = UserLogic.create_user(form.cleaned_data)
+            messages.success(request, 'Пользователь {} создан. Его id = {}'.format(user.username, user.id))
+            return redirect('/admin/users/add')
+    except exceptions.UserExistException:
+        messages.warning(request, 'Такой пользователь уже существует')
     except Exception as e:
         messages.warning(request, e)
-    messages.success(request, 'yee')
     return render(request, 'add_user.html', {'form': form})
+
+
+def add_group(request):
+    form = AddGroupForm(request.POST or None)
+    try:
+        if request.method == 'POST' and form.is_valid():
+            group = GroupLogic.create_group(form.cleaned_data)
+            if group is not None:
+                messages.success(request, 'Группа "{}" была создана. Её id = {}'.format(group.title, group.id))
+            return redirect('/admin/groups/add')
+    except exceptions.UserExistException:
+        messages.warning(request, 'Такой пользователь уже существует')
+    except Exception as e:
+        messages.warning(request, e)
+    return render(request, 'add_group.html', {'form': form})

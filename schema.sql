@@ -28,14 +28,13 @@ CREATE TABLE IF NOT EXISTS Session(
 ) ENGINE = InnoDB DEFAULT CHARACTER SET = 'utf8';
 
 -- Ключевое слово Group зарезервировано. Поэтому используем Groups
+-- У группы должен быть author_id, но его убираем для упрощения. Всё создаёт админ
 CREATE TABLE IF NOT EXISTS Groups(
   id INT NOT NULL AUTO_INCREMENT,
   title VARCHAR(256) NOT NULL,
-  author_id INT NOT NULL,
   created TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
   is_deleted TINYINT(1) NOT NULL DEFAULT 0,
-  PRIMARY KEY (id),
-  FOREIGN KEY (author_id) REFERENCES User(id)
+  PRIMARY KEY (id)
 ) ENGINE = InnoDB DEFAULT CHARACTER SET = 'utf8';
 
 CREATE TABLE IF NOT EXISTS User_group(
@@ -53,5 +52,5 @@ CREATE USER 'fs_user'@'localhost' IDENTIFIED BY '8kf5XvcLCqNQ';
 GRANT INSERT, SELECT, UPDATE ON fs_db . * TO 'fs_user'@'localhost';
 
 INSERT INTO fs_db.User(id, username, password, is_admin) VALUES (1, 'root', 'root', TRUE);
-INSERT INTO fs_db.Groups(id, title, author_id) VALUES (1, 'Home assignment', 1);
+INSERT INTO fs_db.Groups(id, title) VALUES (1, 'Home assignment');
 INSERT INTO fs_db.User_group(user_id, group_id, permission) VALUES (1, 1, 7);
