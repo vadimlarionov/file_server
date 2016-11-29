@@ -14,3 +14,7 @@ class AddUserForm(forms.Form):
 
 class AddGroupForm(forms.Form):
     title = forms.CharField(max_length=256, min_length=1)
+
+
+class SearchUserForm(forms.Form):
+    query = forms.CharField(max_length=256, min_length=1)

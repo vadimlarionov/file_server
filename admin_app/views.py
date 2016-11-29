@@ -13,10 +13,6 @@ def index(request):
     return render(request, 'index.html')
 
 
-def base(request):
-    return render(request, 'base.html')
-
-
 def login(request):
     print('login view')
     if request.method == 'POST':
@@ -44,7 +40,7 @@ def add_user(request):
         messages.warning(request, 'Такой пользователь уже существует')
     except Exception as e:
         messages.warning(request, e)
-    return render(request, 'add_user.html', {'form': form})
+    return render(request, 'user_add.html', {'form': form})
 
 
 def add_group(request):
@@ -59,4 +55,13 @@ def add_group(request):
         messages.warning(request, 'Такой пользователь уже существует')
     except Exception as e:
         messages.warning(request, e)
-    return render(request, 'add_group.html', {'form': form})
+    return render(request, 'group_add.html', {'form': form})
+
+
+def search_user(request):
+    form = SearchUserForm(request.GET or None)
+    users = []
+    if form.is_valid():
+        users = UserLogic.get_users(form.cleaned_data['query'])
+    print(users)ч
+    return render(request, 'search.html', {'users': users})

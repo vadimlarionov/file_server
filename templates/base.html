@@ -46,13 +46,6 @@
 </nav>
 
 <div class="container main-content">
-    {% if success_msg %}
-        <h5 class="alert alert-success">{{ success_msg }}</h5>
-    {% endif %}
-    {% if warning_msg %}
-        <h5 class="alert alert-warning">{{ warning_msg }}</h5>
-    {% endif %}
-
     <div class="row">
         <div class="col-md-10 col-md-offset-1">
             {% block content %}{% endblock %}

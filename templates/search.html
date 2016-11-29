@@ -1,0 +1,32 @@
+{% extends 'base.html' %}
+{% block content %}
+    {% load bootstrap3 %}
+    {% bootstrap_messages %}
+
+    <div class="row">
+        <div class="col-md-4">
+            <h3>Найти пользователя</h3>
+            <form class="form-inline" method="get" action="/search">
+                <div class="input-group">
+                    <input type="text" class="form-control" name="query" placeholder="Username">
+                    <span class="input-group-btn">
+                        <button class="btn btn-default" type="submit">
+                            <span class="glyphicon glyphicon-search" aria-hidden="true"></span>
+                        </button>
+                    </span>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div class="row margin-top-20">
+        <div class="col">
+            <ul>
+                {% for u in users %}
+                    <li><a href="/users/{{ u.id }}">{{ u.username }}</a></li>
+                {% endfor %}
+            </ul>
+        </div>
+    </div>
+
+{% endblock %}

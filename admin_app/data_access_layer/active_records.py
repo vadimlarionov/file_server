@@ -1,7 +1,8 @@
-from admin_app.db_service import DbService
 from pymysql.err import MySQLError
-from admin_app.data_access_layer import exceptions
+
 from admin_app.data_access_layer import constants
+from admin_app.data_access_layer import exceptions
+from admin_app.db_service import DbService
 
 
 class UserActiveRecord:
@@ -13,7 +14,10 @@ class UserActiveRecord:
         self.created = None
         self.is_deleted = False
 
-    def save(self):
+    def create(self):
+        """
+        Добавляет пользователя в БД
+        """
         sql = 'INSERT INTO User(username, password, is_admin) VALUES (%s, %s, %s)'
         try:
             with DbService.get_connection() as cursor:
@@ -24,6 +28,14 @@ class UserActiveRecord:
                 raise exceptions.UserExistException
             raise e
 
+    def save(self):
+        """
+        Обновляет информацию о пользователе
+        """
+        sql = 'UPDATE User SET is_admin = %s, is_deleted = %s WHERE id = %s'
+        with DbService.get_connection() as cursor:
+            cursor.execute(sql, (self.is_admin, self.is_deleted, self.id))
+
     def delete(self):
         if self.id is None:
             return
@@ -32,7 +44,7 @@ class UserActiveRecord:
         except ValueError:
             print('user id is not int')
             return
-        sql = 'UPDATE User SET is_deleted = TRUE WHERE id = %s'
+        sql = 'UPDATE User SET is_deleted = 1 WHERE id = %s'
         with DbService.get_connection() as cursor:
             cursor.execute(sql, (self.id,))
             self.is_deleted = True
@@ -41,20 +53,20 @@ class UserActiveRecord:
         if self.id is None:
             print("user id is None")
             return
-        sql = 'UPDATE User SET is_deleted = FALSE WHERE id = %s'
+        sql = 'UPDATE User SET is_deleted = 0 WHERE id = %s'
         with DbService.get_connection() as cursor:
             cursor.execute(sql, (self.id,))
             self.is_deleted = False
 
     @staticmethod
-    def get_user(username):
+    def get_by_username(username):
         sql = 'SELECT * FROM User WHERE username = %s'
         with DbService.get_connection() as cursor:
-            cursor.execute(sql, (username, ))
+            cursor.execute(sql, (username,))
             return UserActiveRecord.__deserialize__(cursor.fetchone())
 
     @staticmethod
-    def find(identity):
+    def get_by_identity(identity):
         try:
             identity = int(identity)
         except ValueError:
@@ -71,16 +83,29 @@ class UserActiveRecord:
         return None
 
     @staticmethod
+    def find(username_like):
+        username_like += '%'
+        sql = 'SELECT * FROM User WHERE username LIKE %s'
+        with DbService.get_connection() as cursor:
+            cursor.execute(sql, (username_like,))
+            all_rows = cursor.fetchall()
+        users = []
+        if all_rows is not None:
+            for row in all_rows:
+                users.append(UserActiveRecord.__deserialize__(row))
+        return users
+
+    @staticmethod
     def __deserialize__(row):
         if row is None:
             return None
         user = UserActiveRecord()
-        user.id = row['id']
-        user.username = row['username']
-        user.password = row['password']
-        user.is_admin = row['is_admin']
+        user.id = int(row['id'])
+        user.username = str(row['username'])
+        user.password = str(row['password'])
+        user.is_admin = bool(row['is_admin'])
         user.created = row['created']
-        user.is_deleted = row['is_deleted']
+        user.is_deleted = bool(row['is_deleted'])
         return user
 
 
@@ -117,30 +142,33 @@ class GroupActiveRecord:
         self.created = None
         self.is_deleted = False
 
-    def save(self):
-        pass
-
-    def update(self):
-        pass
-
-    def delete(self):
-        pass
-
-    @staticmethod
-    def create_group(title):
+    def create(self):
         sql = 'INSERT INTO Groups(title) VALUES (%s)'
         with DbService.get_connection() as cursor:
-            cursor.execute(sql, title)
-            identity = cursor.lastrowid
-        if identity is not None:
-            return GroupActiveRecord.find(identity)
+            cursor.execute(sql, (self.title,))
+            self.id = cursor.lastrowid
+        if self.id is not None:
+            return GroupActiveRecord.get_by_identity(self.id)
+
+    def save(self):
+        sql = 'UPDATE Groups SET title = %s, self.is_delete = %s WHERE id = %s'
+        with DbService.get_connection() as cursor:
+            cursor.execute(sql, (self.title, self.is_deleted, self.id))
+
+    def delete(self):
+        if self.id is None:
+            print('Group id is None')
+            return
+        sql = 'UPDATE Groups SET is_deleted = 1 WHERE id = %s'
+        with DbService.get_connection() as cursor:
+            cursor.execute(sql)
+            self.is_deleted = True
 
     @staticmethod
-    def find(identity):
+    def get_by_identity(identity):
         sql = 'SELECT * FROM Groups WHERE id = %s'
         with DbService.get_connection() as cursor:
             cursor.execute(sql, (int(identity),))
-
             return GroupActiveRecord.__deserializer__(cursor.fetchone())
 
     @staticmethod
@@ -148,10 +176,10 @@ class GroupActiveRecord:
         if row is None:
             return None
         group = GroupActiveRecord()
-        group.id = row['id']
-        group.title = row['title']
+        group.id = int(row['id'])
+        group.title = str(row['title'])
         group.created = row['created']
-        group.is_deleted = row['is_deleted']
+        group.is_deleted = bool(row['is_deleted'])
         return group
 
 
