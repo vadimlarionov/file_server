@@ -63,5 +63,21 @@ def search_user(request):
     users = []
     if form.is_valid():
         users = UserLogic.get_users(form.cleaned_data['query'])
-    print(users)ч
+    print(users)
     return render(request, 'search.html', {'users': users})
+
+
+def user_groups(request, user_id):
+    print(user_id)
+    user = None
+    user_groups = None
+    other_groups = None
+    try:
+        u = UserLogic.get_user_by_id(user_id)
+    except ValueError:
+        messages.warning(request, 'user_id должно быть положительное')
+        pass
+    except Exception as e:
+        messages.warning(request, e)
+
+    return render(request, 'user_groups.html', {'u': user, 'groups': groups})
