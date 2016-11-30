@@ -1,0 +1,18 @@
+{% extends 'base.html' %}
+{% block content %}
+    {% load bootstrap3 %}
+
+    <div class="row">
+        <div class="col-md-4">
+            <h3>Загрузить файл:</h3>
+
+            <form action="/catalogue/{{ cat_id }}/file/upload" method="post" class="form" enctype='multipart/form-data'>
+                {% csrf_token %}
+                {% bootstrap_form form %}
+                {% buttons %}
+                    <button type="submit" class="btn btn-primary">Загрузить</button>
+                {% endbuttons %}
+            </form>
+        </div>
+    </div>
+{% endblock %}

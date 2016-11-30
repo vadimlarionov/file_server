@@ -43,6 +43,9 @@
 
         </div>
         <ul class="nav navbar-nav pull-right">
+            {% if request.user.is_authenticated %}
+                <li><a href="/user/{{ request.user.id }}/catalogues" class="pull-left">Мои каталоги</a></li>
+            {% endif %}
             {% if request.user.is_admin %}
                 <li><a href="/admin/users/add" class="pull-right">Добавить пользователя</a></li>
                 <li><a href="/admin/groups/add" class="pull-right">Добавить группу</a></li>

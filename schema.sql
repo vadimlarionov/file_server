@@ -46,6 +46,32 @@ CREATE TABLE IF NOT EXISTS User_group(
   FOREIGN KEY (group_id) REFERENCES Groups(id)
 ) ENGINE = InnoDB DEFAULT CHARACTER SET = 'utf8';
 
+CREATE TABLE IF NOT EXISTS Catalogue(
+  id INT NOT NULL AUTO_INCREMENT,
+  title VARCHAR(256) NOT NULL,
+  author_id INT NOT NULL,
+  PRIMARY KEY (id),
+  FOREIGN KEY (author_id) REFERENCES User(id)
+) ENGINE = InnoDB DEFAULT CHARACTER SET = 'utf8';
+
+CREATE TABLE IF NOT EXISTS File(
+  id INT NOT NULL AUTO_INCREMENT,
+  title VARCHAR(256) NOT NULL,
+  user_id INT NOT NULL,
+  catalogue_id INT NOT NULL,
+  PRIMARY KEY (id),
+  FOREIGN KEY (user_id) REFERENCES User(id),
+  FOREIGN KEY (catalogue_id) REFERENCES Catalogue(id)
+) ENGINE = InnoDB DEFAULT CHARACTER SET = 'utf8';
+
+# -- Пользователи, добавленные к каталогу
+# CREATE TABLE IF NOT EXISTS UserCatalogue(
+#   catalogue_id INT NOT NULL,
+#   userd_id INT NOT NULL,
+#   FOREIGN KEY (user_id) REFERENCES User(id),
+#   FOREIGN KEY (catalogue_id) REFERENCES Catalogue(id)
+# ) ENGINE = InnoDB DEFAULT CHARACTER SET = 'utf8';
+
 -- ----- CREATE USER ----- --
 GRANT USAGE ON *.* TO 'fs_user'@'localhost'; -- Официальный хак для DROP IF EXISTS
 DROP USER 'fs_user'@'localhost';

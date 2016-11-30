@@ -1,0 +1,19 @@
+{% extends 'base.html' %}
+{% block content %}
+    <div class="row">
+        <div class="col-md-4 col-md-offset-1 margin-top-1">
+            <h4>Ваши каталоги:</h4>
+
+            <table class="table table-condensed">
+                {% for c in catalogues %}
+                    <tr>
+                        <td><a href="/catalogue/{{ c.id }}">{{ c.title }}</a> </td>
+                        <td><button class="btn btn-danger btn-xs">Удалить</button></td>
+                    </tr>
+                {% endfor %}
+
+            </table>
+            <a href="/user/catalogues/add" class="btn btn-primary">+ Создать каталог</a>
+        </div>
+    </div>
+{% endblock %}

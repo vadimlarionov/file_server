@@ -37,8 +37,8 @@ def login(request):
     return response
 
 
-@login_required
-@admin_required  # хватит и одного, но двойной декоратор это круто
+# @login_required
+# @admin_required  # хватит и одного, но двойной декоратор это круто
 def add_user(request):
     form = AddUserForm(request.POST or None)
     try:

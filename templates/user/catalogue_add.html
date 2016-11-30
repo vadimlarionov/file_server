@@ -1,0 +1,18 @@
+{% extends 'base.html' %}
+{% block content %}
+    {% load bootstrap3 %}
+
+    <div class="row">
+        <div class="col-md-4">
+            <h3>Создать каталог</h3>
+
+            <form action="/user/catalogues/add" method="post" class="form">
+                {% csrf_token %}
+                {% bootstrap_form form %}
+                {% buttons %}
+                    <button type="submit" class="btn btn-primary">Создать</button>
+                {% endbuttons %}
+            </form>
+        </div>
+    </div>
+{% endblock %}
