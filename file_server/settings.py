@@ -48,6 +48,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'file_server.middleware.auth.CustomAuthMiddleware'  # авторизация повышенной четкости
 ]
 
 ROOT_URLCONF = 'file_server.urls'

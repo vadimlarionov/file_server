@@ -40,8 +40,18 @@
                 <span class="icon-bar"></span>
                 <span class="icon-bar"></span>
             </button>
-            <a class="navbar-brand" href="#">Файловое хранилище</a>
+            <a class="navbar-brand" href="/">Файловое хранилище</a>
+
         </div>
+
+        {% if request.user.is_authenticated %}
+            <a href="/logout" class="navbar-brand pull-right">Выйти</a>
+        {% endif %}
+        {% if request.user.is_admin %}
+            <a href="/admin/users/add" class="navbar-brand pull-right">Добавить пользователя</a>
+            <a href="/admin/groups/add" class="navbar-brand pull-right">Добавить группу</a>
+            <a href="/search" class="navbar-brand pull-right">Поиск</a>
+        {% endif %}
     </div>
 </nav>
 

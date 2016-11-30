@@ -40,3 +40,21 @@ class GroupLogic:
             raise exceptions.NotFoundException
         group.delete()
         return group
+
+
+class SessionLogic:
+    @staticmethod
+    def create_session(username, session_key):
+        session = SessionActiveRecord()
+        session.session_key = str(session_key)
+        session.user_id = int(UserActiveRecord.find(username)[0].id)
+        session.expire_date = None  # TODO
+        session.create()
+        return session
+
+    @staticmethod
+    def delete_session(session_key):
+        session = SessionActiveRecord.get_by_identity(session_key)
+        if session is None:
+            raise exceptions.NotFoundException
+        session.delete()

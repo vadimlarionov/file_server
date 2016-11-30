@@ -6,6 +6,8 @@ from admin_app.db_service import DbService
 
 
 class UserActiveRecord:
+    """Больше документации."""
+
     def __init__(self):
         self.id = None
         self.username = None
@@ -78,7 +80,7 @@ class UserActiveRecord:
             cursor.execute(sql, (identity,))
             row = cursor.fetchone()
             if row is not None:
-                print(row)
+                print('row: ', row)
                 return UserActiveRecord.__deserialize__(row)
         return None
 
@@ -108,26 +110,53 @@ class UserActiveRecord:
         user.is_deleted = bool(row['is_deleted'])
         return user
 
+    def __str__(self):
+        return 'User: {} {} {}'.format(self.id, self.username, self.is_admin)
+
 
 class SessionActiveRecord:
+    """Больше документации."""
+
     def __init__(self):
+        self.id = None
         self.session_key = None
         self.user_id = None
         self.expire_date = None
 
-    def save(self):
-        pass
+    def create(self):
+        print("Inserting: ", self.session_key, self.user_id, self.expire_date)
+        sql = 'INSERT INTO Session(session_key, user_id, expire_date) VALUES (%s, %s, %s)'
+        with DbService.get_connection() as cursor:
+            cursor.execute(sql, (self.session_key, self.user_id, self.expire_date))
+            self.id = cursor.lastrowid
+        if self.id is not None:
+            return SessionActiveRecord.get_by_identity(self.session_key)
 
     def delete(self):
-        pass
+        sql = 'UPDATE Session SET user_id = NULL WHERE session_key = %s'
+        with DbService.get_connection() as cursor:
+            cursor.execute(sql, (self.session_key,))
 
     @staticmethod
     def get_session(session_key):
         sql = 'SELECT * FROM Session WHERE session_key = %s'
-        pass
+
+        with DbService.get_connection() as cursor:
+            cursor.execute(sql, (session_key,))
+            row = cursor.fetchone()
+        return SessionActiveRecord.__deserialize__(row)
+
+    @staticmethod
+    def get_by_identity(identity):
+        sql = 'SELECT * FROM Session WHERE session_key = %s'
+        with DbService.get_connection() as cursor:
+            cursor.execute(sql, (identity,))
+            return SessionActiveRecord.__deserialize__(cursor.fetchone())
 
     @staticmethod
     def __deserialize__(row):
+        if not row:
+            return None
         session = SessionActiveRecord()
         session.session_key = row['session_key']
         session.user_id = row['user_id']
@@ -136,6 +165,8 @@ class SessionActiveRecord:
 
 
 class GroupActiveRecord:
+    """Больше документации."""
+
     def __init__(self):
         self.id = None
         self.title = None

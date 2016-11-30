@@ -47,6 +47,7 @@ CREATE TABLE IF NOT EXISTS User_group(
 ) ENGINE = InnoDB DEFAULT CHARACTER SET = 'utf8';
 
 -- ----- CREATE USER ----- --
+GRANT USAGE ON *.* TO 'fs_user'@'localhost'; -- Официальный хак для DROP IF EXISTS
 DROP USER 'fs_user'@'localhost';
 CREATE USER 'fs_user'@'localhost' IDENTIFIED BY '8kf5XvcLCqNQ';
 GRANT INSERT, SELECT, UPDATE ON fs_db . * TO 'fs_user'@'localhost';
