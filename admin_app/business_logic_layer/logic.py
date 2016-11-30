@@ -20,6 +20,13 @@ class UserLogic:
     def get_users(username_like):
         return UserActiveRecord.find(username_like)
 
+    @staticmethod
+    def get_user_by_id(user_id):
+        user_id = int(user_id)
+        if user_id <= 0:
+            raise ValueError('user_id must be positive')
+        return UserActiveRecord.get_by_identity(user_id)
+
 
 class GroupLogic:
     @staticmethod
@@ -58,3 +65,16 @@ class SessionLogic:
         if session is None:
             raise exceptions.NotFoundException
         session.delete()
+
+
+class UserGroups:
+    @staticmethod
+    def get_user_groups(user_id):
+        """Вернуть список групп пользователя"""
+        pass
+
+    @staticmethod
+    def get_other_groups(user_id):
+        """Вернуть группы, в который не состоит пользователь"""
+        pass
+

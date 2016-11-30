@@ -22,5 +22,6 @@ urlpatterns = [
     url(r'^logout$', views.logout),
     url(r'^admin/users/add', views.add_user),
     url(r'^admin/groups/add', views.add_group),
-    url(r'^search', views.search_user)
+    url(r'^search', views.search_user),
+    url(r'^admin/users/(?P<user_id>\d+)', views.user_groups)
 ]
