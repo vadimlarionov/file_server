@@ -7,6 +7,7 @@ from file_server.settings import MEDIA_DIR
 class TransactionScript:
     @staticmethod
     def get_user_catalogues(user_id):
+        # NB: должен возвращать только каталоги, непосредственно созданные юзером
         return CatalogueGateway.find_by_user_id(user_id)
 
     @staticmethod
@@ -38,10 +39,16 @@ class TransactionScript:
         FileGateway.create(file_data, user_id, cat_id)
 
     @staticmethod
-    def delete_file():
-        pass
+    def delete_file(file_id):
+        file = TransactionScript.get_file(file_id)
+        os.remove(os.path.join(MEDIA_DIR, file.path))
+        FileGateway.delete_by_id(file_id)
 
     @staticmethod
-    def delete_catalog():
-        pass
+    def delete_catalogue(catalogue_id):
+        files = TransactionScript.get_catalogue_files(catalogue_id)
+        for file in files:
+            TransactionScript.delete_file(file.id)
+        CatalogueGateway.delete_by_id(catalogue_id)
+
 

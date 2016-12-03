@@ -7,13 +7,18 @@
             <table class="table table-condensed">
                 {% for c in catalogues %}
                     <tr>
-                        <td><a href="/catalogue/{{ c.id }}">{{ c.title }}</a> </td>
-                        <td><button class="btn btn-danger btn-xs">Удалить</button></td>
+                        <td><a href="/catalogue/{{ c.catalogue.id }}">{{ c.catalogue.title }}</a> </td>
+                        <td>
+                            <form action="{% url 'catalogue-delete' %}" method="post">
+                                {% csrf_token %}
+                                {{ c.form }}
+                                <button type="submit" class="btn btn-danger btn-xs">Удалить</button>
+                            </form>
+                        </td>
                     </tr>
                 {% endfor %}
-
             </table>
-            <a href="/user/catalogues/add" class="btn btn-primary">+ Создать каталог</a>
+            <a href="{% url 'catalogue-add' %}" class="btn btn-primary">+ Создать каталог</a>
         </div>
     </div>
 {% endblock %}

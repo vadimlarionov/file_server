@@ -49,7 +49,7 @@ CREATE TABLE IF NOT EXISTS User_group(
 CREATE TABLE IF NOT EXISTS Catalogue(
   id INT NOT NULL AUTO_INCREMENT,
   title VARCHAR(256) NOT NULL,
-  author_id INT NOT NULL,
+  author_id INT NULL,
   PRIMARY KEY (id),
   FOREIGN KEY (author_id) REFERENCES User(id)
 ) ENGINE = InnoDB DEFAULT CHARACTER SET = 'utf8';
@@ -58,11 +58,11 @@ CREATE TABLE IF NOT EXISTS File(
   id INT NOT NULL AUTO_INCREMENT,
   path VARCHAR(256) NOT NULL,
   title VARCHAR(256) NOT NULL,
-  description VARCHAR(1024) NOT NULL,
-  attributes VARCHAR(256) NOT NULL,
+  description VARCHAR(1024) NULL,
+  attributes VARCHAR(256) NULL,
   other_attributes VARCHAR(256) NULL,
   user_id INT NOT NULL,
-  catalogue_id INT NOT NULL,
+  catalogue_id INT NULL,
   PRIMARY KEY (id),
   FOREIGN KEY (user_id) REFERENCES User(id),
   FOREIGN KEY (catalogue_id) REFERENCES Catalogue(id)

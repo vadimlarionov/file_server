@@ -40,6 +40,15 @@ class CatalogueGateway:
                 catalogs.append(CatalogueGateway.__deserialize__(row))
         return catalogs
 
+
+    @staticmethod
+    def delete_by_id(cat_id):
+        """Удалить каталог по id."""
+        sql = 'UPDATE Catalogue SET author_id = NULL WHERE id = %s'
+        with DbService.get_connection() as cursor:
+            cursor.execute(sql, (cat_id,))
+
+
     @staticmethod
     def __deserialize__(row):
         if row is None:
@@ -80,12 +89,19 @@ class FileGateway:
 
     @staticmethod
     def find_by_id(file_id):
-        """Найти каталог по id."""
+        """Найти файл по id."""
         sql = 'SELECT * FROM File WHERE id = %s'
         with DbService.get_connection() as cursor:
             cursor.execute(sql, (file_id,))
             row = cursor.fetchone()
         return FileGateway.__deserialize__(row)
+
+    @staticmethod
+    def delete_by_id(file_id):
+        """Удалить файл по id."""
+        sql = 'UPDATE File SET catalogue_id = NULL WHERE id = %s'
+        with DbService.get_connection() as cursor:
+            cursor.execute(sql, (file_id,))
 
     @staticmethod
     def __deserialize__(row):
