@@ -31,7 +31,7 @@ def add_catalogue(request):
 
 
 @login_required
-def catalogue(request, cat_id):
+def catalogue_detail(request, cat_id):
     """Отобразить содержимое каталога."""
     files = Ts.get_catalogue_files(cat_id)
     cat = Ts.get_catalogue(cat_id)
@@ -40,17 +40,20 @@ def catalogue(request, cat_id):
 
 
 @login_required
+def file_detail(request, file_id):
+    """Отобразить содержимое каталога."""
+    file = Ts.get_file(file_id)
+    return render(request, 'user/file.html', context={'file': file})
+
+
+@login_required
 def upload_file(request, cat_id):
     """Загрузить файл."""
     if request.method == 'POST':
-        print(request.POST, request.FILES)
         form = UploadFileForm(request.POST, request.FILES)
         if form.is_valid():
-            print('file from view', request.FILES['file'])
-            Ts.save_file(request.FILES['file'], request.user.id, cat_id)
+            Ts.save_file(form.cleaned_data, request.user.id, cat_id)
             return redirect('/catalogue/{}'.format(cat_id))
-        else:
-            print('form invalid')
     else:
         form = UploadFileForm()
     return render(request, 'user/file_upload.html', {'form': form, 'cat_id': cat_id})

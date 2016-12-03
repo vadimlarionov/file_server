@@ -54,14 +54,16 @@ class FileGateway:
     """Шлюз таблицы Файл."""
 
     @staticmethod
-    def create(title, user_id, cat_id):
+    def create(file_data, user_id, cat_id):
         """Добавить новый файл в БД."""
-        sql = 'INSERT INTO File(title, user_id, catalogue_id) VALUES (%s, %s, %s)'
+        sql = 'INSERT INTO File(path, title, description, attributes, other_attributes, user_id, catalogue_id) ' \
+              'VALUES (%s, %s, %s, %s, %s, %s, %s)'
         try:
             with DbService.get_connection() as cursor:
-                cursor.execute(sql, (title, user_id, cat_id))
+                cursor.execute(sql, (str(file_data['file']), file_data['title'], file_data['description'],
+                                     file_data['attributes'], file_data['other_attributes'], user_id, cat_id))
         except MySQLError as e:
-            pass  # TODO duplicate error?
+            print(e)  # TODO duplicate error?
 
     @staticmethod
     def find_by_cat_id(cat_id):
@@ -77,11 +79,25 @@ class FileGateway:
         return files
 
     @staticmethod
+    def find_by_id(file_id):
+        """Найти каталог по id."""
+        sql = 'SELECT * FROM File WHERE id = %s'
+        with DbService.get_connection() as cursor:
+            cursor.execute(sql, (file_id,))
+            row = cursor.fetchone()
+        return FileGateway.__deserialize__(row)
+
+    @staticmethod
     def __deserialize__(row):
         if row is None:
             return None
-        File = namedtuple('File', ['id', 'title', 'user_id', 'catalogue_id'])
+        File = namedtuple('File', ['id', 'path', 'description',  'title',
+                                   'attributes', 'other_attributes', 'user_id', 'catalogue_id'])
         return File(int(row['id']),
+                    str(row['path']),
+                    str(row['description']),
                     str(row['title']),
+                    str(row['attributes']),
+                    str(row['other_attributes']),
                     int(row['user_id']),
                     int(row['catalogue_id']))

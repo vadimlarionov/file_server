@@ -1,14 +1,21 @@
 {% extends 'base.html' %}
 {% block content %}
     <div class="row">
-        <div class="col-md-4 col-md-offset-1 margin-top-1">
+        <div class="col-md-4 col-md-offset-0 margin-top-1">
             <h4>Каталог: {{ catalogue.title }}</h4>
 
-            <br><br>
             <table class="table table-condensed">
+                <tr>
+                    <th>Имя файла</th>
+                    <th>Атрибуты</th>
+                    <th>Дополнительные атрибуты</th>
+                </tr>
                 {% for f in files %}
+
                     <tr>
-                        <td><a href="/media/{{ f.title }}">{{ f.title }}</a> </td>
+                        <td><a href="{% url 'file' f.id %}"> {{ f.title }} </a></td>
+                        <td> {{ f.attributes }} </td>
+                        <td> {{ f.other_attributes }} </td>
                         <td><button class="btn btn-danger btn-xs">Удалить</button></td>
                     </tr>
                 {% endfor %}

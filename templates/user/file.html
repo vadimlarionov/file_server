@@ -1,0 +1,26 @@
+{% extends 'base.html' %}
+{% block content %}
+    <div class="row">
+        <div class="col-md-4 col-md-offset-1 margin-top-1">
+            <h4>Файл: {{ file.title }}</h4>
+
+            <table class="table table-condensed">
+                <tr>
+                    <td>Описание файла: </td>
+                    <td>{{ file.description }}</td>
+                </tr>
+                <tr>
+                    <td>Атрибуты: </td>
+                    <td>{{ file.attributes }}</td>
+                </tr>
+                <tr>
+                    <td>Дополнительные атрибуты: </td>
+                    <td>{{ file.other_attributes }}</td>
+                </tr>
+            </table>
+
+            <a href="/media/{{ f.path }}">Скачать файл</a>
+
+        </div>
+    </div>
+{% endblock %}

@@ -56,7 +56,11 @@ CREATE TABLE IF NOT EXISTS Catalogue(
 
 CREATE TABLE IF NOT EXISTS File(
   id INT NOT NULL AUTO_INCREMENT,
+  path VARCHAR(256) NOT NULL,
   title VARCHAR(256) NOT NULL,
+  description VARCHAR(1024) NOT NULL,
+  attributes VARCHAR(256) NOT NULL,
+  other_attributes VARCHAR(256) NULL,
   user_id INT NOT NULL,
   catalogue_id INT NOT NULL,
   PRIMARY KEY (id),
