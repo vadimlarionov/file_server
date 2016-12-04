@@ -203,6 +203,17 @@ class GroupActiveRecord:
         return []
 
     @staticmethod
+    def find(title_like):
+        title_like += '%'
+        sql = 'SELECT * FROM Groups WHERE title LIKE %s'
+        with DbService.get_connection() as cursor:
+            cursor.execute(sql, (title_like,))
+            rows = cursor.fetchall()
+        if rows:
+            return [GroupActiveRecord.deserialize(row) for row in rows]
+        return []
+
+    @staticmethod
     def deserialize(row):
         if row is None:
             return None

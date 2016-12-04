@@ -73,12 +73,14 @@ def add_group(request):
 
 @login_required
 @admin_required
-def search_user(request):
-    form = SearchUserForm(request.GET or None)
+def search(request):
+    form = SearchForm(request.GET or None)
     users = []
+    groups = []
     if form.is_valid():
         users = UserLogic.get_users(form.cleaned_data['query'])
-    return render(request, 'admin/search.html', {'users': users})
+        groups = GroupActiveRecord.find(form.cleaned_data['query'])
+    return render(request, 'admin/search.html', {'users': users, 'groups': groups})
 
 
 @login_required

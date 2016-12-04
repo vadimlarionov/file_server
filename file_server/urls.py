@@ -5,16 +5,15 @@ from user_app import views as user_views
 
 from django.conf.urls.static import static
 
-# TODO - url names, тег {% url %}
 
 urlpatterns = [
     url(r'^$', views.index),
-    url(r'^login$', views.login),
-    url(r'^logout$', views.logout),
+    url(r'^login$', views.login, name='login'),
+    url(r'^logout$', views.logout, name='logout'),
 
-    url(r'^admin/users/add', views.add_user),
-    url(r'^admin/groups/add', views.add_group),
-    url(r'^search', views.search_user),
+    url(r'^admin/users/add', views.add_user, name='user-add'),
+    url(r'^admin/groups/add', views.add_group, name='group-add'),
+    url(r'^admin/search', views.search, name='admin-search'),
     url(r'^admin/users/(?P<user_id>\d+)', views.user_groups_list),
     url(r'^admin/user_groups/add_user', views.add_user_to_group, name='add-user-to-group'),
     url(r'^admin/user_groups/delete_user', views.delete_user_from_group, name='delete-user-from-group'),

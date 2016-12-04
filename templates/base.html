@@ -47,12 +47,12 @@
                 <li><a href="/user/{{ request.user.id }}/catalogues" class="pull-left">Мои каталоги</a></li>
             {% endif %}
             {% if request.user.is_admin %}
-                <li><a href="/admin/users/add" class="pull-right">Добавить пользователя</a></li>
-                <li><a href="/admin/groups/add" class="pull-right">Добавить группу</a></li>
-                <li><a href="/search" class="pull-right">Поиск</a></li>
+                <li><a href="{% url 'user-add' %}" class="pull-right">Добавить пользователя</a></li>
+                <li><a href="{% url 'group-add' %}" class="pull-right">Добавить группу</a></li>
+                <li><a href="{% url 'admin-search' %}" class="pull-right">Поиск</a></li>
             {% endif %}
             {% if request.user.is_authenticated %}
-                <li><a href="/logout" class="pull-right">Выйти</a></li>
+                <li><a href="{% url 'logout' %}" class="pull-right">Выйти</a></li>
             {% endif %}
         </ul>
 

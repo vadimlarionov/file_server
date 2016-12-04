@@ -8,7 +8,8 @@ class LoginForm(forms.Form):
     password = forms.CharField(max_length=50, min_length=3, label='Пароль')
 
     def is_valid(self):
-        super().is_valid()
+        if not super().is_valid():
+            return False
         try:
             user = UserActiveRecord.get_by_username(self.cleaned_data['username'])
         except KeyError:
@@ -28,7 +29,7 @@ class AddGroupForm(forms.Form):
     title = forms.CharField(max_length=256, min_length=1, label='Заголовок')
 
 
-class SearchUserForm(forms.Form):
+class SearchForm(forms.Form):
     query = forms.CharField(max_length=256, min_length=1)
 
 
