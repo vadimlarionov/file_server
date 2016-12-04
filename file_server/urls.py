@@ -15,6 +15,7 @@ urlpatterns = [
     url(r'^admin/groups/add', views.add_group),
     url(r'^search', views.search_user),
     url(r'^admin/users/(?P<user_id>\d+)', views.user_groups),
+    url(r'^admin/user_groups/change', views.change_user_groups),
 
     url(r'^user/(?P<user_id>\d+)/catalogues', user_views.list_catalogues),
     url(r'^user/catalogues/add', user_views.add_catalogue, name='catalogue-add'),
@@ -23,6 +24,5 @@ urlpatterns = [
     url(r'^catalogue/(?P<cat_id>\d+)$', user_views.catalogue_detail),
     url(r'^catalogue/(?P<cat_id>\d+)/file/upload', user_views.upload_file),
     url(r'^catalogue/delete$', user_views.catalogue_delete, name='catalogue-delete')
-
 
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_DIR)

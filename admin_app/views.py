@@ -84,15 +84,29 @@ def search_user(request):
 @login_required
 def user_groups(request, user_id):
     print(user_id)
-    user = None
-    user_groups = None
+    u = None
+    u_groups = None
     other_groups = None
     try:
         u = UserLogic.get_user_by_id(user_id)
+        u_groups = UserGroups.get_user_groups(user_id)
     except ValueError:
         messages.warning(request, 'user_id должно быть положительное')
         pass
     except Exception as e:
         messages.warning(request, e)
 
-    return render(request, 'user_groups.html', {'u': user, 'groups': user_groups})
+    return render(request, 'user_groups.html', {'u': u, 'user_groups': u_groups})
+
+
+@login_required
+@admin_required
+def change_user_groups(request):
+    if request.method == 'POST':
+        form = AddGroupForm(request.POST)
+        if form.is_valid():
+            print('Form is valid')
+        else:
+            print('asfaf')
+    print('fafas')
+

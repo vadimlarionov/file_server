@@ -70,11 +70,11 @@ class SessionLogic:
 class UserGroups:
     @staticmethod
     def get_user_groups(user_id):
-        """Вернуть список групп пользователя"""
-        pass
+        if int(user_id) <= 0:
+            return
+        return UserGroupActiveRecord.get_user_groups(user_id)
 
     @staticmethod
     def get_other_groups(user_id):
         """Вернуть группы, в который не состоит пользователь"""
         pass
-

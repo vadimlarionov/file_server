@@ -6,8 +6,6 @@ from admin_app.db_service import DbService
 
 
 class UserActiveRecord:
-    """Больше документации."""
-
     def __init__(self):
         self.id = None
         self.username = None
@@ -65,7 +63,7 @@ class UserActiveRecord:
         sql = 'SELECT * FROM User WHERE username = %s'
         with DbService.get_connection() as cursor:
             cursor.execute(sql, (username,))
-            return UserActiveRecord.__deserialize__(cursor.fetchone())
+            return UserActiveRecord.deserialize(cursor.fetchone())
 
     @staticmethod
     def get_by_identity(identity):
@@ -81,7 +79,7 @@ class UserActiveRecord:
             row = cursor.fetchone()
             if row is not None:
                 print('row: ', row)
-                return UserActiveRecord.__deserialize__(row)
+                return UserActiveRecord.deserialize(row)
         return None
 
     @staticmethod
@@ -94,11 +92,11 @@ class UserActiveRecord:
         users = []
         if all_rows is not None:
             for row in all_rows:
-                users.append(UserActiveRecord.__deserialize__(row))
+                users.append(UserActiveRecord.deserialize(row))
         return users
 
     @staticmethod
-    def __deserialize__(row):
+    def deserialize(row):
         if row is None:
             return None
         user = UserActiveRecord()
@@ -115,8 +113,6 @@ class UserActiveRecord:
 
 
 class SessionActiveRecord:
-    """Больше документации."""
-
     def __init__(self):
         self.id = None
         self.session_key = None
@@ -144,17 +140,17 @@ class SessionActiveRecord:
         with DbService.get_connection() as cursor:
             cursor.execute(sql, (session_key,))
             row = cursor.fetchone()
-        return SessionActiveRecord.__deserialize__(row)
+        return SessionActiveRecord.deserialize(row)
 
     @staticmethod
     def get_by_identity(identity):
         sql = 'SELECT * FROM Session WHERE session_key = %s'
         with DbService.get_connection() as cursor:
             cursor.execute(sql, (identity,))
-            return SessionActiveRecord.__deserialize__(cursor.fetchone())
+            return SessionActiveRecord.deserialize(cursor.fetchone())
 
     @staticmethod
-    def __deserialize__(row):
+    def deserialize(row):
         if not row:
             return None
         session = SessionActiveRecord()
@@ -165,8 +161,6 @@ class SessionActiveRecord:
 
 
 class GroupActiveRecord:
-    """Больше документации."""
-
     def __init__(self):
         self.id = None
         self.title = None
@@ -200,10 +194,10 @@ class GroupActiveRecord:
         sql = 'SELECT * FROM Groups WHERE id = %s'
         with DbService.get_connection() as cursor:
             cursor.execute(sql, (int(identity),))
-            return GroupActiveRecord.__deserializer__(cursor.fetchone())
+            return GroupActiveRecord.deserialize(cursor.fetchone())
 
     @staticmethod
-    def __deserializer__(row):
+    def deserialize(row):
         if row is None:
             return None
         group = GroupActiveRecord()
@@ -219,3 +213,37 @@ class UserGroupActiveRecord:
         self.user_id = None
         self.group_id = None
         self.permission = None
+
+    @staticmethod
+    def get_user_groups(user_id):
+        sql = 'SELECT * FROM Groups INNER JOIN User_group ON Groups.id = User_group.group_id WHERE user_id = %s'
+        with DbService.get_connection() as cursor:
+            cursor.execute(sql, (user_id,))
+            all_rows = cursor.fetchall()
+        groups = []
+        if all_rows:
+            for row in all_rows:
+                groups.append(GroupWithPermission.deserialize(row))
+        return groups
+
+
+class GroupWithPermission:
+    def __init__(self):
+        self.user_id = None
+        self.group_id = None
+        self.title = None
+        self.group_created = None
+        self.group_is_deleted = None
+        self.permission = None
+
+    @staticmethod
+    def deserialize(row):
+        if not row:
+            return None
+        group_with_permission = GroupWithPermission()
+        group_with_permission.user_id = int(row['user_id'])
+        group_with_permission.group_id = int(row['group_id'])
+        group_with_permission.title = row['title']
+        group_with_permission.group_created = row['created']
+        group_with_permission.permission = int(row['permission'])
+        return group_with_permission

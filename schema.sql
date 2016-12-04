@@ -84,4 +84,4 @@ GRANT INSERT, SELECT, UPDATE ON fs_db . * TO 'fs_user'@'localhost';
 
 INSERT INTO fs_db.User(id, username, password, is_admin) VALUES (1, 'root', 'root', TRUE);
 INSERT INTO fs_db.Groups(id, title) VALUES (1, 'Home assignment');
-INSERT INTO fs_db.User_group(user_id, group_id, permission) VALUES (1, 1, 7);
+INSERT INTO fs_db.User_group(user_id, group_id, permission) VALUES (1, 1, 3);
