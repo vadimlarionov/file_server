@@ -42,3 +42,10 @@ class AddUserToGroupForm(forms.Form):
 class UserGroupForm(forms.Form):
     user_id = forms.IntegerField(min_value=1, widget=forms.HiddenInput)
     group_id = forms.IntegerField(min_value=1, widget=forms.HiddenInput)
+
+
+class GroupCatalogueForm(forms.Form):
+    group_id = forms.IntegerField(min_value=1)
+    catalogue_id = forms.IntegerField(min_value=1)
+    permission = forms.IntegerField(min_value=1, max_value=3)
+    action = forms.CharField(required=False)

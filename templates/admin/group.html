@@ -1,0 +1,96 @@
+{% extends 'base.html' %}
+{% block content %}
+    {% load bootstrap3 %}
+
+    {% if g %}
+        <div class="row">
+            <div class="col-md-4">
+                <h3>Группа</h3>
+                <h4><b>id:</b> {{ g.id }}</h4>
+                <h4><b>title:</b> {{ g.title }}</h4>
+                <h4><b>created:</b> {{ g.created }}</h4>
+                <h4><b>is_deleted:</b> {{ g.is_deleted }}</h4>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col">
+                <h3>Каталоги, доступные группе</h3>
+                <table class="table table-condensed">
+                    <tr>
+                        <th>Идентификатор каталога</th>
+                        <th>Название</th>
+                        <th>Права доступа</th>
+                        <th>Действие</th>
+                    </tr>
+                    {% for catalogue in catalogues %}
+                        <form action="{% url 'change-catalogues-in-group' %}" method="post">
+                            {% csrf_token %}
+                            <tr>
+                                <td>{{ catalogue.id }}</td>
+                                <td>{{ catalogue.title }}</td>
+                                <td>
+                                    <label>
+                                        <select name="permission" class="form-control">
+                                            <option value="1" {% if g.permission == 1 %} selected="selected" {% endif %}>Чтение</option>
+                                            <option value="2" {% if g.permission == 2 %} selected="selected" {% endif %}>Запись</option>
+                                            <option value="3" {% if g.permission == 3 %} selected="selected" {% endif %}>Чтение и запись</option>
+                                        </select>
+                                    </label>
+                                </td>
+                                <td>
+                                    <input type="hidden" name="group_id" value="{{ g.id }}">
+                                    <input type="hidden" name="catalogue_id" value="{{ catalogue.id }}">
+                                    <button type="submit" class="btn btn-primary" name="action" value="save">Сохранить</button>
+                                    <button type="submit" class="btn btn-danger" name="action" value="delete">Удалить</button>
+                                </td>
+                            </tr>
+                        </form>
+                    {% endfor %}
+                </table>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col">
+                <h3>Остальные каталоги</h3>
+
+                <table class="table table-condensed">
+                    <tr>
+                        <th>Идентификатор каталога</th>
+                        <th>Название</th>
+                        <th>Права доступа</th>
+                        <th>Действие</th>
+                    </tr>
+
+                    {% for catalogue in other_catalogues %}
+                        <form action="{% url 'add-catalogue-to-group' %}" method="post">
+                            <tr>
+                                {% csrf_token %}
+                                <td>{{ catalogue.id }}</td>
+                                <td>{{ catalogue.title }}</td>
+                                <td>
+                                    <label>
+                                        <select name="permission" class="form-control">
+                                            <option value="1">Чтение</option>
+                                            <option value="2">Запись</option>
+                                            <option value="3">Чтение и запись</option>
+                                        </select>
+                                    </label>
+                                </td>
+                                <td>
+                                    <input type="hidden" name="group_id" value="{{ g.id }}">
+                                    <input type="hidden" name="catalogue_id" value="{{ catalogue.id }}">
+                                    <button type="submit" class="btn btn-primary">Добавить</button>
+                                </td>
+                            </tr>
+                        </form>
+                    {% endfor %}
+                </table>
+            </div>
+        </div>
+
+    {% else %}
+        <h3>Пользователь не найден</h3>
+    {% endif %}
+{% endblock %}

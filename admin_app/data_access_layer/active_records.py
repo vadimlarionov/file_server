@@ -158,7 +158,7 @@ class GroupActiveRecord:
             cursor.execute(sql, (self.title,))
             self.id = cursor.lastrowid
         if self.id is not None:
-            return GroupActiveRecord.get_by_identity(self.id)
+            return GroupActiveRecord.get_by_id(self.id)
 
     def save(self):
         sql = 'UPDATE Groups SET title = %s, self.is_delete = %s WHERE id = %s'
@@ -172,7 +172,7 @@ class GroupActiveRecord:
             self.is_deleted = True
 
     @staticmethod
-    def get_by_identity(identity):
+    def get_by_id(identity):
         sql = 'SELECT * FROM Groups WHERE id = %s'
         with DbService.get_connection() as cursor:
             cursor.execute(sql, (int(identity),))
@@ -245,3 +245,64 @@ class UserGroupActiveRecord:
 
     def __str__(self):
         return 'UserGroup: user_id={}, groupId={}'.format(self.user_id, self.group_id)
+
+
+class CatalogueActiveRecord:
+    def __init__(self):
+        self.id = None
+        self.title = None
+        self.author_id = None
+
+    @staticmethod
+    def get_by_group_id(group_id):
+        """Вернуть каталоги, которые доступны группе"""
+        sql = 'SELECT * FROM Catalogue INNER JOIN GroupsCatalogue ' \
+              'ON Catalogue.id = GroupsCatalogue.catalogue_id WHERE group_id = %s'
+        with DbService.get_connection() as cursor:
+            cursor.execute(sql, (group_id,))
+            rows = cursor.fetchall()
+        if rows:
+            return [CatalogueActiveRecord.__deserialize__(row) for row in rows]
+        return []
+
+    @staticmethod
+    def get_catalogues_without_group(group_id):
+        sql = 'SELECT * FROM Catalogue WHERE id NOT IN (SELECT catalogue_id FROM GroupsCatalogue WHERE group_id = %s)'
+        with DbService.get_connection() as cursor:
+            cursor.execute(sql, (group_id,))
+            rows = cursor.fetchall()
+        if rows:
+            return [CatalogueActiveRecord.__deserialize__(row) for row in rows]
+        return []
+
+    @staticmethod
+    def __deserialize__(row):
+        if row is None:
+            return None
+        catalogue = CatalogueActiveRecord()
+        catalogue.id = int(row['id'])
+        catalogue.title = str(row['title'])
+        catalogue.author_id = int(row['author_id'])
+        return catalogue
+
+
+class GroupsCatalogueActiveRecord:
+    def __init__(self):
+        self.group_id = None
+        self.catalogue_id = None
+        self.permission = None
+
+    def create(self):
+        sql = 'INSERT INTO GroupsCatalogue(group_id, catalogue_id, permission) VALUES (%s, %s, %s)'
+        with DbService.get_connection() as cursor:
+            cursor.execute(sql, (self.group_id, self.catalogue_id, self.permission))
+
+    def update_permission(self):
+        sql = 'UPDATE GroupsCatalogue SET permission = %s WHERE group_id = %s AND catalogue_id = %s'
+        with DbService.get_connection() as cursor:
+            cursor.execute(sql, (self.permission, self.group_id, self.catalogue_id))
+
+    def delete(self):
+        sql = 'DELETE FROM GroupsCatalogue WHERE group_id = %s AND catalogue_id = %s'
+        with DbService.get_connection() as cursor:
+            cursor.execute(sql, (self.group_id, self.catalogue_id))

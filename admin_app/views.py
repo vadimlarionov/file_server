@@ -80,6 +80,8 @@ def search(request):
     if form.is_valid():
         users = UserLogic.get_users(form.cleaned_data['query'])
         groups = GroupActiveRecord.find(form.cleaned_data['query'])
+        if not (users or groups):
+            messages.warning(request, 'Не найдено')
     return render(request, 'admin/search.html', {'users': users, 'groups': groups})
 
 
@@ -131,4 +133,49 @@ def delete_user_from_group(request):
     form = UserGroupForm(request.POST)
     if form.is_valid():
         UserGroupActiveRecord.delete_user_from_group(form.cleaned_data['user_id'], form.cleaned_data['group_id'])
+    return redirect(request.META.get('HTTP_REFERER', '/'))
+
+
+@login_required
+@admin_required
+def group_catalogues(request, group_id):
+    """Информация о группе"""
+    group = GroupActiveRecord.get_by_id(group_id)
+    catalogues = CatalogueActiveRecord.get_by_group_id(group_id)
+    other_catalogues = CatalogueActiveRecord.get_catalogues_without_group(group_id)
+
+    context = {'g': group, 'catalogues': catalogues, 'other_catalogues': other_catalogues}
+    return render(request, 'admin/group.html', context)
+
+
+@login_required
+@admin_required
+def add_catalogue_to_group(request):
+    """Добавить каталог к группе"""
+    form = GroupCatalogueForm(request.POST)
+    if form.is_valid():
+        group_catalogue = GroupsCatalogueActiveRecord()
+        group_catalogue.group_id = form.cleaned_data['group_id']
+        group_catalogue.catalogue_id = form.cleaned_data['catalogue_id']
+        group_catalogue.permission = form.cleaned_data['permission']
+        group_catalogue.create()
+    return redirect(request.META.get('HTTP_REFERER', '/'))
+
+
+@login_required
+@admin_required
+def change_catalogues_in_group(request):
+    form = GroupCatalogueForm(request.POST)
+    if form.is_valid():
+        group_catalogue = GroupsCatalogueActiveRecord()
+        group_catalogue.group_id = form.cleaned_data['group_id']
+        group_catalogue.catalogue_id = form.cleaned_data['catalogue_id']
+        group_catalogue.permission = form.cleaned_data['permission']
+
+        if form.cleaned_data['action'] == 'save':
+            group_catalogue.update_permission()
+        elif form.cleaned_data['action'] == 'delete':
+            group_catalogue.delete()
+        else:
+            messages.warning(request, 'Unexpected action type')
     return redirect(request.META.get('HTTP_REFERER', '/'))

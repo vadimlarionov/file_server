@@ -42,7 +42,7 @@ class GroupLogic:
 
     @staticmethod
     def delete_group(identity):
-        group = GroupActiveRecord.get_by_identity(identity)
+        group = GroupActiveRecord.get_by_id(identity)
         if group is None:
             raise exceptions.NotFoundException
         group.delete()

@@ -69,6 +69,7 @@ CREATE TABLE IF NOT EXISTS File(
 CREATE TABLE IF NOT EXISTS GroupsCatalogue(
   group_id INT NOT NULL,
   catalogue_id INT NOT NULL,
+  permission INT,   -- 1-read, 2-write, 3-read and write
   PRIMARY KEY (group_id, catalogue_id),
   FOREIGN KEY (group_id) REFERENCES Groups(id),
   FOREIGN KEY (catalogue_id) REFERENCES Catalogue(id)
