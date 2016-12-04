@@ -1,0 +1,65 @@
+{% extends 'base.html' %}
+{% block content %}
+    {% load bootstrap3 %}
+
+    {% if u %}
+        <div class="row">
+            <div class="col-md-4">
+                <h3>Пользователь</h3>
+                <h4><b>id:</b> {{ u.id }}</h4>
+                <h4><b>username:</b> {{ u.username }}</h4>
+                <h4><b>created:</b> {{ u.created }}</h4>
+                <h4><b>is_deleted:</b> {{ u.is_deleted }}</h4>
+                <h4><b>is_admin:</b> {{ u.is_admin }}</h4>
+            </div>
+
+        </div>
+
+        <div class="row">
+            <div class="col-md-6">
+                <h4>Группы пользователя</h4>
+
+                <table class="table table-condensed">
+                    {% for g in user_groups %}
+                        <tr>
+                            <td>{{ g.group.id }}</td>
+                            <td>{{ g.group.title }}</td>
+                            <td>
+                                <form action="{% url 'delete-user-from-group' %}" method="post">
+                                    {% csrf_token %}
+                                    {{ g.form }}
+                                    <button type="submit" class="btn btn-danger btn-xs">Удалить из группы</button>
+                                </form>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </table>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-md-6">
+                <h4>Добавить пользователя в группу</h4>
+
+                <table class="table table-condensed">
+                    {% for g in other_groups %}
+                        <tr>
+                            <td>{{ g.group.id }}</td>
+                            <td>{{ g.group.title }}</td>
+                            <td>
+                                <form action="{% url 'add-user-to-group' %}" method="post">
+                                    {% csrf_token %}
+                                    {{ g.form }}
+                                    <button type="submit" class="btn btn-primary btn-xs">Добавить в группу</button>
+                                </form>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </table>
+            </div>
+        </div>
+
+    {% else %}
+        <h3>Пользователь не найден</h3>
+    {% endif %}
+{% endblock %}

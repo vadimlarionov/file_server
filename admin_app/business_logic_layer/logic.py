@@ -25,7 +25,7 @@ class UserLogic:
         user_id = int(user_id)
         if user_id <= 0:
             raise ValueError('user_id must be positive')
-        return UserActiveRecord.get_by_identity(user_id)
+        return UserActiveRecord.get_by_id(user_id)
 
 
 class GroupLogic:
@@ -72,6 +72,8 @@ class UserGroups:
     def get_user_groups(user_id):
         if int(user_id) <= 0:
             return
+
+
         return UserGroupActiveRecord.get_user_groups(user_id)
 
     @staticmethod

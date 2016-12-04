@@ -36,3 +36,8 @@ class AddUserToGroupForm(forms.Form):
     user_id = forms.IntegerField(min_value=1)
     group_id = forms.IntegerField(min_value=1)
     permission = forms.IntegerField(min_value=1, max_value=3)
+
+
+class UserGroupForm(forms.Form):
+    user_id = forms.IntegerField(min_value=1, widget=forms.HiddenInput)
+    group_id = forms.IntegerField(min_value=1, widget=forms.HiddenInput)

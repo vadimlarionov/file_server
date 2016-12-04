@@ -15,9 +15,7 @@ class UserActiveRecord:
         self.is_deleted = False
 
     def create(self):
-        """
-        Добавляет пользователя в БД
-        """
+        """Добавляет пользователя в БД"""
         sql = 'INSERT INTO User(username, password, is_admin) VALUES (%s, %s, %s)'
         try:
             with DbService.get_connection() as cursor:
@@ -29,9 +27,7 @@ class UserActiveRecord:
             raise e
 
     def save(self):
-        """
-        Обновляет информацию о пользователе
-        """
+        """Обновляет информацию о пользователе"""
         sql = 'UPDATE User SET is_admin = %s, is_deleted = %s WHERE id = %s'
         with DbService.get_connection() as cursor:
             cursor.execute(sql, (self.is_admin, self.is_deleted, self.id))
@@ -66,21 +62,12 @@ class UserActiveRecord:
             return UserActiveRecord.deserialize(cursor.fetchone())
 
     @staticmethod
-    def get_by_identity(identity):
-        try:
-            identity = int(identity)
-        except ValueError:
-            print('identity is not int, identity={}'.format(identity))
-            return
-
+    def get_by_id(identity):
         sql = 'SELECT * FROM User WHERE id = %s'
         with DbService.get_connection() as cursor:
             cursor.execute(sql, (identity,))
             row = cursor.fetchone()
-            if row is not None:
-                print('row: ', row)
-                return UserActiveRecord.deserialize(row)
-        return None
+            return UserActiveRecord.deserialize(row)
 
     @staticmethod
     def find(username_like):
@@ -88,12 +75,10 @@ class UserActiveRecord:
         sql = 'SELECT * FROM User WHERE username LIKE %s'
         with DbService.get_connection() as cursor:
             cursor.execute(sql, (username_like,))
-            all_rows = cursor.fetchall()
-        users = []
-        if all_rows is not None:
-            for row in all_rows:
-                users.append(UserActiveRecord.deserialize(row))
-        return users
+            rows = cursor.fetchall()
+        if rows:
+            return [UserActiveRecord.deserialize(row) for row in rows]
+        return []
 
     @staticmethod
     def deserialize(row):
@@ -181,9 +166,6 @@ class GroupActiveRecord:
             cursor.execute(sql, (self.title, self.is_deleted, self.id))
 
     def delete(self):
-        if self.id is None:
-            print('Group id is None')
-            return
         sql = 'UPDATE Groups SET is_deleted = 1 WHERE id = %s'
         with DbService.get_connection() as cursor:
             cursor.execute(sql)
@@ -195,6 +177,30 @@ class GroupActiveRecord:
         with DbService.get_connection() as cursor:
             cursor.execute(sql, (int(identity),))
             return GroupActiveRecord.deserialize(cursor.fetchone())
+
+    @staticmethod
+    def get_user_groups(user_id):
+        """Вернуть группы, в которых состоит пользователь"""
+        sql = 'SELECT * FROM Groups INNER JOIN UserGroup ON Groups.id = UserGroup.group_id WHERE user_id = %s'
+        with DbService.get_connection() as cursor:
+            cursor.execute(sql, (user_id,))
+            rows = cursor.fetchall()
+        if rows:
+            return [GroupActiveRecord.deserialize(row) for row in rows]
+        return []
+
+    @staticmethod
+    def get_groups_without_user(user_id):
+        """Вернуть группы, в которых не состоит пользователь"""
+        # TODO Да простит меня Павел
+        sql = 'SELECT * FROM Groups WHERE id NOT IN ' \
+              '(SELECT id FROM Groups INNER JOIN UserGroup ON Groups.id = UserGroup.group_id WHERE user_id = %s);'
+        with DbService.get_connection() as cursor:
+            cursor.execute(sql, (user_id,))
+            rows = cursor.fetchall()
+        if rows:
+            return [GroupActiveRecord.deserialize(row) for row in rows]
+        return []
 
     @staticmethod
     def deserialize(row):
@@ -212,38 +218,19 @@ class UserGroupActiveRecord:
     def __init__(self):
         self.user_id = None
         self.group_id = None
-        self.permission = None
 
     @staticmethod
-    def get_user_groups(user_id):
-        sql = 'SELECT * FROM Groups INNER JOIN User_group ON Groups.id = User_group.group_id WHERE user_id = %s'
+    def delete_user_from_group(user_id, group_id):
+        """Удалить пользователя из группы"""
+        sql = 'DELETE FROM UserGroup WHERE user_id = %s AND group_id = %s'
         with DbService.get_connection() as cursor:
-            cursor.execute(sql, (user_id,))
-            all_rows = cursor.fetchall()
-        groups = []
-        if all_rows:
-            for row in all_rows:
-                groups.append(GroupWithPermission.deserialize(row))
-        return groups
-
-
-class GroupWithPermission:
-    def __init__(self):
-        self.user_id = None
-        self.group_id = None
-        self.title = None
-        self.group_created = None
-        self.group_is_deleted = None
-        self.permission = None
+            cursor.execute(sql, (user_id, group_id))
 
     @staticmethod
-    def deserialize(row):
-        if not row:
-            return None
-        group_with_permission = GroupWithPermission()
-        group_with_permission.user_id = int(row['user_id'])
-        group_with_permission.group_id = int(row['group_id'])
-        group_with_permission.title = row['title']
-        group_with_permission.group_created = row['created']
-        group_with_permission.permission = int(row['permission'])
-        return group_with_permission
+    def add_user_to_group(user_id, group_id):
+        sql = 'INSERT INTO UserGroup(user_id, group_id) VALUES (%s, %s)'
+        with DbService.get_connection() as cursor:
+            cursor.execute(sql, (user_id, group_id))
+
+    def __str__(self):
+        return 'UserGroup: user_id={}, groupId={}'.format(self.user_id, self.group_id)

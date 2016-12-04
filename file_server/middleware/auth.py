@@ -12,7 +12,7 @@ class CustomAuthMiddleware:
         if session:
             user_id = session.user_id
             if user_id:
-                user = UserActiveRecord.get_by_identity(user_id)
+                user = UserActiveRecord.get_by_id(user_id)
                 request.user = user
                 request.user.is_authenticated = True
         # то что сверху выполняется до view
