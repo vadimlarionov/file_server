@@ -11,8 +11,17 @@ class TransactionScript:
         return CatalogueGateway.find_by_user_id(user_id)
 
     @staticmethod
+    def get_shared_catalogues(user_id):
+        """Каталоги групп, к которым принадлежить пользователь"""
+        return CatalogueGateway.find_shared_by_user_id(user_id)
+
+    @staticmethod
     def get_catalogue(cat_id):
         return CatalogueGateway.find_by_id(cat_id)
+
+    @staticmethod
+    def get_permission_on_catalogue(cat_id, user_id):
+        return CatalogueGateway.get_permission_by_id_and_user_id(cat_id, user_id)
 
     @staticmethod
     def get_catalogue_files(cat_id):

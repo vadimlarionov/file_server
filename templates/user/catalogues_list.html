@@ -18,7 +18,16 @@
                     </tr>
                 {% endfor %}
             </table>
-            <a href="{% url 'catalogue-add' %}" class="btn btn-primary">+ Создать каталог</a>
-        </div>
+            <h4>Разделяемые каталоги:</h4>
+
+                <table class="table table-condensed">
+                    {% for catalogue in shared_catalogues %}
+                        <tr>
+                            <td><a href="/catalogue/{{ catalogue.id }}">{{ catalogue.title }}</a> </td>
+                        </tr>
+                    {% endfor %}
+                </table>
+                <a href="{% url 'catalogue-add' %}" class="btn btn-primary">+ Создать каталог</a>
+            </div>
     </div>
 {% endblock %}

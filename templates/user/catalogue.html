@@ -15,16 +15,22 @@
                 {% for f in files %}
 
                     <tr>
-                        <td><a href="{% url 'file' f.file.id %}"> {{ f.file.title }} </a></td>
+                        {% if read_allowed %}
+                            <td><a href="{% url 'file' f.file.id %}"> {{ f.file.title }} </a></td>
+                        {% else %}
+                            <td> {{ f.file.title }} </td>
+                        {% endif %}
                         <td> {{ f.file.attributes }} </td>
                         <td> {{ f.file.other_attributes }} </td>
-                        <td>
-                            <form action="{% url 'file-delete' %}" method="post">
-                                {% csrf_token %}
-                                {{ f.form }}
-                                <button type="submit" class="btn btn-danger btn-xs">Удалить</button>
-                            </form>
-                        </td>
+                        {% if write_allowed %}
+                            <td>
+                                <form action="{% url 'file-delete' %}" method="post">
+                                    {% csrf_token %}
+                                    {{ f.form }}
+                                    <button type="submit" class="btn btn-danger btn-xs">Удалить</button>
+                                </form>
+                            </td>
+                        {% endif %}
                     </tr>
                 {% endfor %}
 

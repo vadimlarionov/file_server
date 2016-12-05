@@ -40,6 +40,36 @@ class CatalogueGateway:
                 catalogs.append(CatalogueGateway.__deserialize__(row))
         return catalogs
 
+    @staticmethod
+    def find_shared_by_user_id(user_id):
+        """Найти каталоги по id пользователя."""
+        sql = 'SELECT * FROM Catalogue c ' \
+              'JOIN GroupsCatalogue gc ON c.id = gc.catalogue_id ' \
+              'JOIN Groups g ON gc.group_id = g.id ' \
+              'JOIN UserGroup ug ON g.id = ug.group_id ' \
+              'JOIN User u ON ug.user_id = u.id ' \
+              'WHERE u.id = %s AND author_id != %s'
+        with DbService.get_connection() as cursor:
+            cursor.execute(sql, (user_id, user_id))
+            all_rows = cursor.fetchall()
+        catalogs = []
+        if all_rows is not None:
+            for row in all_rows:
+                catalogs.append(CatalogueGateway.__deserialize__(row))
+        return catalogs
+
+    @staticmethod
+    def get_permission_by_id_and_user_id(cat_id, user_id):
+        """Найти доступ к каталогу по id пользователя и каталога."""
+        sql = 'SELECT DISTINCT gc.permission FROM Catalogue c ' \
+              'JOIN GroupsCatalogue gc ON c.id = gc.catalogue_id ' \
+              'JOIN Groups g ON gc.group_id = g.id ' \
+              'JOIN UserGroup ug ON g.id = ug.group_id ' \
+              'JOIN User u ON ug.user_id = u.id ' \
+              'WHERE u.id = %s AND c.id = %s'
+        with DbService.get_connection() as cursor:
+            cursor.execute(sql, (user_id, cat_id))
+            return int(cursor.fetchone()['permission'])
 
     @staticmethod
     def delete_by_id(cat_id):
