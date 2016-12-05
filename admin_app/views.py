@@ -1,4 +1,3 @@
-import uuid
 from collections import namedtuple
 
 from django.contrib import messages
@@ -17,7 +16,7 @@ def index(request):
 def logout(request):
     """Это уязвимость."""
     session_key = request.COOKIES.get('session_key', None)
-    SessionLogic.delete_session(session_key)
+    Session.delete_session(session_key)
     return redirect('/')
 
 
@@ -27,9 +26,8 @@ def login(request):
     if request.method == 'POST':
         form = LoginForm(request.POST)
         if form.is_valid():
-            session_key = str(uuid.uuid4())
-            SessionLogic.create_session(form.cleaned_data['username'], session_key)
-            response.set_cookie('session_key', session_key)
+            session = User.authorize(form.cleaned_data['username'])
+            response.set_cookie('session_key', session.session_key)
             return response
         else:
             response.set_cookie('session_key', '')
@@ -38,13 +36,13 @@ def login(request):
     return response
 
 
-# @login_required
-# @admin_required  # хватит и одного, но двойной декоратор это круто
+@login_required
+@admin_required
 def add_user(request):
     form = AddUserForm(request.POST or None)
     try:
         if form.is_valid():
-            user = UserLogic.create_user(form.cleaned_data)
+            user = User.create(form.cleaned_data)
             messages.success(request, 'Пользователь {} создан. Его id = {}'.format(user.username, user.id))
             return redirect('/admin/users/add')
     except exceptions.UserExistException:
@@ -60,12 +58,10 @@ def add_group(request):
     form = AddGroupForm(request.POST or None)
     try:
         if form.is_valid():
-            group = GroupLogic.create_group(form.cleaned_data)
-            if group is not None:
+            group = Group.create(form.cleaned_data['title'])
+            if group:
                 messages.success(request, 'Группа "{}" была создана. Её id = {}'.format(group.title, group.id))
             return redirect('/admin/groups/add')
-    except exceptions.UserExistException:
-        messages.warning(request, 'Такой пользователь уже существует')
     except Exception as e:
         messages.warning(request, e)
     return render(request, 'admin/group_add.html', {'form': form})
@@ -78,8 +74,8 @@ def search(request):
     users = []
     groups = []
     if form.is_valid():
-        users = UserLogic.get_users(form.cleaned_data['query'])
-        groups = GroupActiveRecord.find(form.cleaned_data['query'])
+        users = User.get_users(form.cleaned_data['query'])
+        groups = Group.get_groups(form.cleaned_data['query'])
         if not (users or groups):
             messages.warning(request, 'Не найдено')
     return render(request, 'admin/search.html', {'users': users, 'groups': groups})
@@ -92,10 +88,10 @@ def user_groups_list(request, user_id):
     user_groups = None
     other_groups = None
     try:
-        u = UserLogic.get_user_by_id(user_id)
-        user_groups = GroupActiveRecord.get_user_groups(user_id)
+        u = User.get_user_by_id(user_id)
+        user_groups = User.get_groups(user_id)
+        other_groups = User.get_other_groups(user_id)
         sorted(user_groups, key=lambda group: group.id)
-        other_groups = GroupActiveRecord.get_groups_without_user(user_id)
         sorted(other_groups, key=lambda group: group.id)
     except Exception as e:
         messages.warning(request, e)
@@ -120,7 +116,7 @@ def add_user_to_group(request):
     form = UserGroupForm(request.POST)
     if form.is_valid():
         try:
-            UserGroupActiveRecord.add_user_to_group(form.cleaned_data['user_id'], form.cleaned_data['group_id'])
+            Group.add_user(form.cleaned_data['user_id'], form.cleaned_data['group_id'])
         except Exception as e:
             messages.warning(request, e)
     return redirect(request.META.get('HTTP_REFERER', '/'))
@@ -132,7 +128,7 @@ def delete_user_from_group(request):
     """Удалить пользователя из группы"""
     form = UserGroupForm(request.POST)
     if form.is_valid():
-        UserGroupActiveRecord.delete_user_from_group(form.cleaned_data['user_id'], form.cleaned_data['group_id'])
+        Group.delete_user(form.cleaned_data['user_id'], form.cleaned_data['group_id'])
     return redirect(request.META.get('HTTP_REFERER', '/'))
 
 
@@ -140,10 +136,9 @@ def delete_user_from_group(request):
 @admin_required
 def group_catalogues(request, group_id):
     """Информация о группе"""
-    group = GroupActiveRecord.get_by_id(group_id)
-    group_catalogues_list = GroupCatalogue.get_by_group_id(group_id)
-    print(group_catalogues_list)
-    other_catalogues = CatalogueActiveRecord.get_catalogues_without_group(group_id)
+    group = Group.get_by_id(group_id)
+    group_catalogues_list = Catalogue.get_groups(group_id)
+    other_catalogues = Group.get_catalogues_without_group(group_id)
 
     context = {'g': group, 'g_c_list': group_catalogues_list, 'other_catalogues': other_catalogues}
     return render(request, 'admin/group.html', context)
@@ -155,28 +150,27 @@ def add_catalogue_to_group(request):
     """Добавить каталог к группе"""
     form = GroupCatalogueForm(request.POST)
     if form.is_valid():
-        group_catalogue = GroupsCatalogueActiveRecord()
-        group_catalogue.group_id = form.cleaned_data['group_id']
-        group_catalogue.catalogue_id = form.cleaned_data['catalogue_id']
-        group_catalogue.permission = form.cleaned_data['permission']
-        group_catalogue.create()
+        try:
+            Group.add_catalogue(form.cleaned_data['group_id'],
+                                form.cleaned_data['catalogue_id'], form.cleaned_data['permission'])
+        except Exception as e:
+            messages.warning(request, e)
     return redirect(request.META.get('HTTP_REFERER', '/'))
 
 
 @login_required
 @admin_required
 def change_catalogues_in_group(request):
+    """Изменить/удалить каталог из группы"""
     form = GroupCatalogueForm(request.POST)
     if form.is_valid():
-        group_catalogue = GroupsCatalogueActiveRecord()
-        group_catalogue.group_id = form.cleaned_data['group_id']
-        group_catalogue.catalogue_id = form.cleaned_data['catalogue_id']
-        group_catalogue.permission = form.cleaned_data['permission']
-
+        group_id = form.cleaned_data['group_id']
+        catalogue_id = form.cleaned_data['catalogue_id']
+        permission = form.cleaned_data['permission']
         if form.cleaned_data['action'] == 'save':
-            group_catalogue.update_permission()
+            Group.update_permission_in_catalogue(group_id, catalogue_id, permission)
         elif form.cleaned_data['action'] == 'delete':
-            group_catalogue.delete()
+            Group.delete_catalogue(group_id, catalogue_id)
         else:
             messages.warning(request, 'Unexpected action type')
     return redirect(request.META.get('HTTP_REFERER', '/'))

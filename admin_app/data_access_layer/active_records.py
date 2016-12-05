@@ -16,6 +16,10 @@ class UserActiveRecord:
 
     def create(self):
         """Добавляет пользователя в БД"""
+        user = UserActiveRecord.get_by_username(self.username)
+        if user is not None:
+            raise exceptions.UserExistException
+
         sql = 'INSERT INTO User(username, password, is_admin) VALUES (%s, %s, %s)'
         try:
             with DbService.get_connection() as cursor:
@@ -204,6 +208,8 @@ class GroupActiveRecord:
 
     @staticmethod
     def find(title_like):
+        if not title_like:
+            return None
         title_like += '%'
         sql = 'SELECT * FROM Groups WHERE title LIKE %s'
         with DbService.get_connection() as cursor:
@@ -282,7 +288,7 @@ class CatalogueActiveRecord:
         catalogue = CatalogueActiveRecord()
         catalogue.id = int(row['id'])
         catalogue.title = str(row['title'])
-        catalogue.author_id = int(row['author_id'])
+        catalogue.author_id = row['author_id']
         return catalogue
 
 
