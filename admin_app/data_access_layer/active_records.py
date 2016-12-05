@@ -306,3 +306,42 @@ class GroupsCatalogueActiveRecord:
         sql = 'DELETE FROM GroupsCatalogue WHERE group_id = %s AND catalogue_id = %s'
         with DbService.get_connection() as cursor:
             cursor.execute(sql, (self.group_id, self.catalogue_id))
+
+
+class GroupCatalogue:
+    def __init__(self):
+        self.group = None
+        self.catalogue = None
+        self.permission = None
+
+    @staticmethod
+    def get_by_group_id(group_id):
+        sql = 'SELECT * FROM Groups INNER JOIN GroupsCatalogue ON Groups.id = GroupsCatalogue.group_id ' \
+              'INNER JOIN Catalogue ON GroupsCatalogue.catalogue_id = Catalogue.id WHERE group_id = %s'
+        with DbService.get_connection() as cursor:
+            cursor.execute(sql, (group_id,))
+            rows = cursor.fetchall()
+        if rows:
+            return [GroupCatalogue.__deserialize__(row) for row in rows]
+        return []
+
+    @staticmethod
+    def __deserialize__(row):
+        if row is None:
+            return None
+        group = GroupActiveRecord()
+        group.id = row['group_id']
+        group.created = row['created']
+        group.title = row['title']
+        group.is_deleted = row['is_deleted']
+
+        catalogue = CatalogueActiveRecord()
+        catalogue.id = row['catalogue_id']
+        catalogue.title = row['Catalogue.title']
+        catalogue.author_id = row['author_id']
+
+        group_catalogue = GroupCatalogue()
+        group_catalogue.group = group
+        group_catalogue.catalogue = catalogue
+        group_catalogue.permission = row['permission']
+        return group_catalogue

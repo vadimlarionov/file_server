@@ -141,10 +141,11 @@ def delete_user_from_group(request):
 def group_catalogues(request, group_id):
     """Информация о группе"""
     group = GroupActiveRecord.get_by_id(group_id)
-    catalogues = CatalogueActiveRecord.get_by_group_id(group_id)
+    group_catalogues_list = GroupCatalogue.get_by_group_id(group_id)
+    print(group_catalogues_list)
     other_catalogues = CatalogueActiveRecord.get_catalogues_without_group(group_id)
 
-    context = {'g': group, 'catalogues': catalogues, 'other_catalogues': other_catalogues}
+    context = {'g': group, 'g_c_list': group_catalogues_list, 'other_catalogues': other_catalogues}
     return render(request, 'admin/group.html', context)
 
 

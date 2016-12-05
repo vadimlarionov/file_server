@@ -6,10 +6,10 @@
         <div class="row">
             <div class="col-md-4">
                 <h3>Группа</h3>
-                <h4><b>id:</b> {{ g.id }}</h4>
-                <h4><b>title:</b> {{ g.title }}</h4>
-                <h4><b>created:</b> {{ g.created }}</h4>
-                <h4><b>is_deleted:</b> {{ g.is_deleted }}</h4>
+                <h4><b>Идентификатор:</b> {{ g.id }}</h4>
+                <h4><b>Заголовок:</b> {{ g.title }}</h4>
+                <h4><b>Создана:</b> {{ g.created }}</h4>
+                <h4><b>Удалена:</b> {% if g.is_deleted %}Да{% else %}Нет{% endif %}</h4>
             </div>
         </div>
 
@@ -23,24 +23,24 @@
                         <th>Права доступа</th>
                         <th>Действие</th>
                     </tr>
-                    {% for catalogue in catalogues %}
+                    {% for g_c in g_c_list %}
                         <form action="{% url 'change-catalogues-in-group' %}" method="post">
                             {% csrf_token %}
                             <tr>
-                                <td>{{ catalogue.id }}</td>
-                                <td>{{ catalogue.title }}</td>
+                                <td>{{ g_c.catalogue.id }}</td>
+                                <td>{{ g_c.catalogue.title }}</td>
                                 <td>
                                     <label>
                                         <select name="permission" class="form-control">
-                                            <option value="1" {% if g.permission == 1 %} selected="selected" {% endif %}>Чтение</option>
-                                            <option value="2" {% if g.permission == 2 %} selected="selected" {% endif %}>Запись</option>
-                                            <option value="3" {% if g.permission == 3 %} selected="selected" {% endif %}>Чтение и запись</option>
+                                            <option value="1" {% if g_c.permission == 1 %} selected="selected" {% endif %}>Чтение</option>
+                                            <option value="2" {% if g_c.permission == 2 %} selected="selected" {% endif %}>Запись</option>
+                                            <option value="3" {% if g_c.permission == 3 %} selected="selected" {% endif %}>Чтение и запись</option>
                                         </select>
                                     </label>
                                 </td>
                                 <td>
                                     <input type="hidden" name="group_id" value="{{ g.id }}">
-                                    <input type="hidden" name="catalogue_id" value="{{ catalogue.id }}">
+                                    <input type="hidden" name="catalogue_id" value="{{ g_c.catalogue.id }}">
                                     <button type="submit" class="btn btn-primary" name="action" value="save">Сохранить</button>
                                     <button type="submit" class="btn btn-danger" name="action" value="delete">Удалить</button>
                                 </td>
