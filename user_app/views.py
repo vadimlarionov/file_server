@@ -5,12 +5,12 @@ from django.shortcuts import render, redirect
 
 
 from auth_utils import login_required
-from user_app.business_logic_layer.transact_script import TransactionScript as Ts
+from user_app.business_logic_layer.transact_script import (PERMISSION_WR,
+                                                           PERMISSION_W,
+                                                           PERMISSION_R,
+                                                           TransactionScript as Ts)
 from user_app.forms import (AddCatalogueForm, UploadFileForm,
                             FileDeleteForm, CatalogueDeleteForm)
-
-
-PERMISSION_R, PERMISSION_W, PERMISSION_WR = 1, 2, 3
 
 
 @login_required

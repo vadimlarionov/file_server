@@ -59,25 +59,11 @@ class CatalogueGateway:
         return catalogs
 
     @staticmethod
-    def get_permission_by_id_and_user_id(cat_id, user_id):
-        """Найти доступ к каталогу по id пользователя и каталога."""
-        sql = 'SELECT DISTINCT gc.permission FROM Catalogue c ' \
-              'JOIN GroupsCatalogue gc ON c.id = gc.catalogue_id ' \
-              'JOIN Groups g ON gc.group_id = g.id ' \
-              'JOIN UserGroup ug ON g.id = ug.group_id ' \
-              'JOIN User u ON ug.user_id = u.id ' \
-              'WHERE u.id = %s AND c.id = %s'
-        with DbService.get_connection() as cursor:
-            cursor.execute(sql, (user_id, cat_id))
-            return int(cursor.fetchone()['permission'])
-
-    @staticmethod
     def delete_by_id(cat_id):
         """Удалить каталог по id."""
         sql = 'UPDATE Catalogue SET author_id = NULL WHERE id = %s'
         with DbService.get_connection() as cursor:
             cursor.execute(sql, (cat_id,))
-
 
     @staticmethod
     def __deserialize__(row):
@@ -87,6 +73,32 @@ class CatalogueGateway:
         return Catalogue(int(row['id']),
                          str(row['title']),
                          int(row['author_id']))
+
+
+class GroupCatalogueGateway:
+    """Шлюз таблицы Каталог Группы."""
+    @staticmethod
+    def find_by_cat_id_and_user_id(cat_id, user_id):
+        """Найти доступ к каталогу по id пользователя и каталога."""
+        sql = 'SELECT DISTINCT gc.permission FROM Catalogue c ' \
+              'JOIN GroupsCatalogue gc ON c.id = gc.catalogue_id ' \
+              'JOIN Groups g ON gc.group_id = g.id ' \
+              'JOIN UserGroup ug ON g.id = ug.group_id ' \
+              'JOIN User u ON ug.user_id = u.id ' \
+              'WHERE u.id = %s AND c.id = %s'
+        with DbService.get_connection() as cursor:
+            cursor.execute(sql, (user_id, cat_id))
+            result = cursor.fetchone()
+        return result
+
+    @staticmethod
+    def __deserialize__(row):
+        if row is None:
+            return None
+        GroupCatalogue = namedtuple('GroupCatalogue', ['group_id', 'catalogue_id', 'permission'])
+        return GroupCatalogue(int(row['group_id']),
+                              str(row['catalogue_id']),
+                              int(row['permission']))
 
 
 class FileGateway:

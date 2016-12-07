@@ -35,7 +35,9 @@
                 {% endfor %}
 
             </table>
-            <a href="/catalogue/{{ catalogue.id }}/file/upload" class="btn btn-primary">+ Загрузить файл</a>
+            {% if write_allowed %}
+                <a href="/catalogue/{{ catalogue.id }}/file/upload" class="btn btn-primary">+ Загрузить файл</a>
+            {% endif %}
         </div>
     </div>
 {% endblock %}
