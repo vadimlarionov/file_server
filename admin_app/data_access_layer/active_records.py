@@ -282,6 +282,13 @@ class CatalogueActiveRecord:
         return []
 
     @staticmethod
+    def get_by_id(catalogue_id):
+        sql = 'SELECT * FROM Catalogue WHERE id = %s'
+        with DbService.get_connection() as cursor:
+            cursor.execute(sql, (catalogue_id,))
+            return CatalogueActiveRecord.__deserialize__(cursor.fetchone())
+
+    @staticmethod
     def __deserialize__(row):
         if row is None:
             return None

@@ -100,6 +100,17 @@ class Group:
         permission = int(permission)
         if any([group_id <= 0, catalogue_id <= 0, permission <= 0, permission > 3]):
             raise ValueError()
+
+        group = Group.get_by_id(group_id)
+        if not group:
+            print('Group not found')
+            return None
+
+        catalogue = Catalogue.get_by_id(catalogue_id)
+        if not catalogue:
+            print('Catalogue not found')
+            return None
+
         group_catalogue = GroupsCatalogueActiveRecord()
         group_catalogue.group_id = group_id
         group_catalogue.catalogue_id = catalogue_id
@@ -165,3 +176,7 @@ class Catalogue:
         if int(group_id) <= 0:
             raise ValueError
         return GroupCatalogue.get_by_group_id(group_id)
+
+    @staticmethod
+    def get_by_id(catalogue_id):
+        return CatalogueActiveRecord.get_by_id(catalogue_id)
