@@ -16,7 +16,22 @@
                     <button type="submit" class="btn btn-lg btn-primary">Войти</button>
                 </form>
             {% else %}
-                <h3>Вы авторизованы</h3>
+                {% if request.user.is_admin %}
+                    <div class="row">
+                        <form action="{% url 'users-report' %}" target="_blank">
+                            <button type="submit" class="btn btn-primary">Отчёт по пользователям</button>
+                        </form>
+                    </div>
+
+                    <div class="margin-top-10">
+                        <form action="http://google.com" target="_blank">
+                            <button type="submit" class="btn btn-primary">Отчёт по группам</button>
+                        </form>
+                    </div>
+                {% else %}
+                    <h3>Вы авторизованы</h3>
+                {% endif %}
+
             {% endif %}
         </div>
     </div>
