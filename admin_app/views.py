@@ -1,4 +1,3 @@
-import csv
 from collections import namedtuple
 
 from django.contrib import messages
@@ -187,13 +186,32 @@ def change_catalogues_in_group(request):
 @login_required
 @admin_required
 def users_report(request):
-    response = HttpResponse(content_type='text/csv')
-    response['Content-Disposition'] = 'attachment; filename="users-report.csv"'
-    writer = csv.writer(response)
+    t = request.GET.get('report_type', '')
+    if t == 'pdf':
+        report = report_factory.create_report(ReportType.users_pdf)
+        response = HttpResponse(report.get_report(), content_type='application/pdf')
+        response['Content-Disposition'] = 'attachment; filename=users_report.pdf'
+    elif t == 'csv':
+        report = report_factory.create_report(ReportType.users_csv)
+        response = HttpResponse(report.get_report(), content_type='text/csv')
+        response['Content-Disposition'] = 'attachment; filename="users_report.csv"'
+    else:
+        response = redirect(request.META.get('HTTP_REFERER', '/'))
+    return response
 
-    report = report_factory.create_report(ReportType.users)
-    writer.writerow(report.get_headers())
-    data = report.get_data()
-    for row in data:
-        writer.writerow(row)
+
+@login_required
+@admin_required
+def groups_report(request):
+    t = request.GET.get('report_type', '')
+    if t == 'pdf':
+        report = report_factory.create_report(ReportType.groups_pdf)
+        response = HttpResponse(report.get_report(), content_type='application/pdf')
+        response['Content-Disposition'] = 'attachment; filename=groups_report.pdf'
+    elif t == 'csv':
+        report = report_factory.create_report(ReportType.groups_csv)
+        response = HttpResponse(report.get_report(), content_type='text/csv')
+        response['Content-Disposition'] = 'attachment; filename="groups_report.csv"'
+    else:
+        response = redirect(request.META.get('HTTP_REFERER', '/'))
     return response

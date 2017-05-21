@@ -100,6 +100,10 @@ class Group:
             return []
         return GroupActiveRecord.get_groups_without_user(user_id)
 
+    @staticmethod
+    def get_all_groups():
+        return GroupActiveRecord.get_groups()
+
 
 class GroupActiveRecord:
     def __init__(self):
@@ -181,6 +185,16 @@ class GroupActiveRecord:
         group.created = row['created']
         group.is_deleted = bool(row['is_deleted'])
         return group
+
+    @staticmethod
+    def get_groups():
+        sql = 'SELECT * FROM Groups'
+        with DbService.get_connection() as cursor:
+            cursor.execute(sql)
+            rows = cursor.fetchall()
+        if rows:
+            return [GroupActiveRecord.deserialize(row) for row in rows]
+        return []
 
 
 class UserGroupActiveRecord:

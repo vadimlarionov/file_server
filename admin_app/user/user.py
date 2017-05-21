@@ -48,6 +48,10 @@ class User:
             return []
         return Group.get_groups_without_user(user_id)
 
+    @staticmethod
+    def get_all_users():
+        return UserActiveRecord.get_users()
+
 
 class UserActiveRecord:
     def __init__(self):
