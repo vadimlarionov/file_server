@@ -74,7 +74,7 @@ class Group:
     def get_catalogues_without_group(group_id):
         if int(group_id) <= 0:
             raise ValueError
-        return CatalogueActiveRecord.get_catalogues_without_group(group_id)
+        return Catalogue.get_catalogues_without_group(group_id)
 
     @staticmethod
     def delete_user(user_id, group_id):

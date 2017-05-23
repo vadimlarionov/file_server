@@ -6,6 +6,10 @@ class Catalogue:
     def get_by_id(catalogue_id):
         return CatalogueActiveRecord.get_by_id(catalogue_id)
 
+    @staticmethod
+    def get_catalogues_without_group(group_id):
+        return CatalogueActiveRecord.get_catalogues_without_group(group_id)
+
 
 class CatalogueActiveRecord:
     def __init__(self):
