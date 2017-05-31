@@ -24,6 +24,9 @@
                         <td> {{ f.file.other_attributes }} </td>
                         {% if write_allowed %}
                             <td>
+                                <a href="/catalogue/{{ catalogue.id }}/file/edit/{{ f.file.id }}" type="submit" class="btn btn-info btn-xs">Редактировать</a>
+                            </td>
+                            <td>
                                 <form action="{% url 'file-delete' %}" method="post">
                                     {% csrf_token %}
                                     {{ f.form }}

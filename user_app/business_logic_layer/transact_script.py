@@ -9,7 +9,9 @@ PERMISSION_R, PERMISSION_W, PERMISSION_WR = 1, 2, 3
 class TransactionScript:
     @staticmethod
     def get_user_catalogues(user_id):
-        """Получить каталоги, непосредственно созданные пользователем"""
+        """
+        Получить каталоги, непосредственно созданные пользователем
+        """
         # NB: не возвращает каталоги групп
         if not user_id:
             raise ValueError('Не указан параметр user_id')
@@ -17,21 +19,27 @@ class TransactionScript:
 
     @staticmethod
     def get_shared_catalogues(user_id):
-        """Получить каталоги групп, к которым принадлежит пользователь"""
+        """
+        Получить каталоги групп, к которым принадлежит пользователь
+        """
         if not user_id:
             raise ValueError('Не указан параметр user_id')
         return CatalogueGateway.find_shared_by_user_id(user_id)
 
     @staticmethod
     def get_catalogue(cat_id):
-        """Получить каталог по id"""
+        """
+        Получить каталог по id
+        """
         if not cat_id:
             raise ValueError('Не указан параметр cat_id')
         return CatalogueGateway.find_by_id(cat_id)
 
     @staticmethod
     def get_permission_on_catalogue(cat_id, user_id):
-        """Получить доступ к каталогу по id каталога и пользователя"""
+        """
+        Получить доступ к каталогу по id каталога и пользователя
+        """
         if not cat_id:
             raise ValueError('Не указан параметр cat_id')
         if not user_id:
@@ -44,21 +52,27 @@ class TransactionScript:
 
     @staticmethod
     def get_catalogue_files(cat_id):
-        """Получить список файлов в каталоге"""
+        """
+        Получить список файлов в каталоге
+        """
         if not cat_id:
             raise ValueError('Не указан параметр cat_id')
         return FileGateway.find_by_cat_id(cat_id)
 
     @staticmethod
     def get_file(file_id):
-        """Получить файл по id"""
+        """
+        Получить файл по id
+        """
         if not file_id:
             raise ValueError('Не указан параметр file_id')
         return FileGateway.find_by_id(file_id)
 
     @staticmethod
     def create_catalogue(title, user_id):
-        """Создать каталог"""
+        """
+        Создать каталог
+        """
         if not title:
             raise ValueError('Не указан параметр title')
         if not user_id:
@@ -67,7 +81,9 @@ class TransactionScript:
 
     @staticmethod
     def download_file(file):
-        """Скачать указанный файл"""
+        """
+        Скачать указанный файл
+        """
         if not file:
             raise ValueError('Не указан параметр file')
         with open(os.path.join(MEDIA_DIR, str(file)), 'wb+') as destination:
@@ -76,7 +92,9 @@ class TransactionScript:
 
     @staticmethod
     def save_file(file_data, user_id, cat_id):
-        """Создать запись об указанном файле"""
+        """
+        Создать запись об указанном файле
+        """
         if not file_data:
             raise ValueError('Не указан параметр file_data')
         if not user_id:
@@ -89,7 +107,9 @@ class TransactionScript:
 
     @staticmethod
     def delete_file(file_id):
-        """Удалить указанный файл"""
+        """
+        Удалить указанный файл
+        """
         if not file_id:
             raise ValueError('Не указан параметр file_id')
         file = TransactionScript.get_file(file_id)
@@ -97,8 +117,20 @@ class TransactionScript:
         FileGateway.delete_by_id(file_id)
 
     @staticmethod
+    def edit_file(file_id, file_data):
+        """
+        Редактировать указанный файл
+        """
+        if not file_id:
+            raise ValueError('Не указан параметр file_id')
+
+        FileGateway.update(file_data, file_id)
+
+    @staticmethod
     def delete_catalogue(catalogue_id):
-        """Удалить указанный каталог и входящие в него файлы"""
+        """
+        Удалить указанный каталог и входящие в него файлы
+        """
         if not catalogue_id:
             raise ValueError('Не указан catalogue_id')
         files = TransactionScript.get_catalogue_files(catalogue_id)

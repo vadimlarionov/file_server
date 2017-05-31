@@ -114,7 +114,7 @@ class FileGateway:
                 cursor.execute(sql, (str(file_data['file']), file_data['title'], file_data['description'],
                                      file_data['attributes'], file_data['other_attributes'], user_id, cat_id))
         except MySQLError as e:
-            print(e)  # TODO duplicate error?
+            print(e)
 
     @staticmethod
     def find_by_cat_id(cat_id):
@@ -144,6 +144,18 @@ class FileGateway:
         sql = 'UPDATE File SET catalogue_id = NULL WHERE id = %s'
         with DbService.get_connection() as cursor:
             cursor.execute(sql, (file_id,))
+
+    @staticmethod
+    def update(file_data, file_id):
+        """Добавить новый файл в БД."""
+        sql = 'UPDATE File SET title=%s, description=%s, attributes=%s, other_attributes=%s ' \
+              'WHERE id=%s'
+        try:
+            with DbService.get_connection() as cursor:
+                cursor.execute(sql, (file_data['title'], file_data['description'],
+                                     file_data['attributes'], file_data['other_attributes'], int(file_id)))
+        except MySQLError as e:
+            print(e)
 
     @staticmethod
     def __deserialize__(row):

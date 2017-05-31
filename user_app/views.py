@@ -10,7 +10,7 @@ from user_app.business_logic_layer.transact_script import (PERMISSION_WR,
                                                            PERMISSION_R,
                                                            TransactionScript as Ts)
 from user_app.forms import (AddCatalogueForm, UploadFileForm,
-                            FileDeleteForm, CatalogueDeleteForm)
+                            FileDeleteForm, CatalogueDeleteForm, EditFileForm)
 
 
 @login_required
@@ -91,3 +91,22 @@ def upload_file(request, cat_id):
     else:
         form = UploadFileForm()
     return render(request, 'user/file_upload.html', {'form': form, 'cat_id': cat_id})
+
+
+@login_required
+def edit_file(request, cat_id, file_id):
+    """Редактировать файл."""
+    if request.method == 'POST':
+        form = EditFileForm(request.POST, request.FILES)
+        if form.is_valid():
+            Ts.edit_file(file_id, form.cleaned_data)
+            return redirect('/catalogue/{}'.format(cat_id))
+    else:
+        file = Ts.get_file(file_id)
+        form = EditFileForm(initial={
+             'title': file.title,
+             'description': file.description,
+             'attributes': file.attributes,
+             'other_attributes': file.other_attributes
+        })
+    return render(request, 'user/file_edit.html', {'form': form, 'cat_id': cat_id, 'file_id': file_id})
