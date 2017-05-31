@@ -26,6 +26,7 @@ urlpatterns = [
     url(r'^file/(?P<file_id>\d+)$', user_views.file_detail, name='file'),
     url(r'^file/delete$', user_views.file_delete, name='file-delete'),
     url(r'^catalogue/(?P<cat_id>\d+)$', user_views.catalogue_detail),
+    url(r'^catalogue/(?P<cat_id>\d+)/download$', user_views.catalogue_download),
     url(r'^catalogue/(?P<cat_id>\d+)/file/upload', user_views.upload_file),
     url(r'^catalogue/(?P<cat_id>\d+)/file/edit/(?P<file_id>\d+)$', user_views.edit_file),
     url(r'^catalogue/delete$', user_views.catalogue_delete, name='catalogue-delete')

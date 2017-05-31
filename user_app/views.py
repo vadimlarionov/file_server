@@ -1,7 +1,11 @@
+import os
 from collections import namedtuple
 
 from django.contrib import messages
+from django.http import HttpResponse
 from django.shortcuts import render, redirect
+
+from wsgiref.util import FileWrapper
 
 
 from auth_utils import login_required
@@ -53,6 +57,21 @@ def catalogue_detail(request, cat_id):
                                                            'catalogue': cat,
                                                            'write_allowed': write_allowed,
                                                            'read_allowed': read_allowed})
+
+
+@login_required
+def catalogue_download(request, cat_id):
+    """Скачать каталог."""
+    cat = Ts.get_catalogue(cat_id)
+    archive_path = Ts.download_catalogue(cat_id)
+
+    filename = archive_path
+    wrapper = FileWrapper(open(filename, 'rb'))
+    response = HttpResponse(wrapper)
+    response['Content-Length'] = os.path.getsize(filename)
+    response['Content-Disposition'] = 'attachment; filename={}.zip'.format(cat.title)
+
+    return response
 
 
 @login_required
