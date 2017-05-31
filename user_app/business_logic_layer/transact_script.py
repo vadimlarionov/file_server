@@ -1,4 +1,5 @@
 import os
+from wsgiref.util import FileWrapper
 
 from user_app.business_logic_layer.download_composite import DownloadableCatalog, DownloadableFile
 from user_app.data_access_layer.gateways import CatalogueGateway, FileGateway, GroupCatalogueGateway
@@ -81,7 +82,7 @@ class TransactionScript:
         CatalogueGateway.create(title, user_id)
 
     @staticmethod
-    def download_file(file):
+    def upload_file(file):
         """
         Скачать указанный файл (загрузить в хранилище).
         """
@@ -96,10 +97,7 @@ class TransactionScript:
         """
         Скачать указанный каталог.
         """
-
         files = FileGateway.find_by_cat_id(cat_id)
-
-        print(files)
 
         downloadable_files = [DownloadableFile(f) for f in files]
         catalog_composite = DownloadableCatalog()
@@ -107,10 +105,25 @@ class TransactionScript:
         for f in downloadable_files:
             catalog_composite.add(f)
 
-        data = catalog_composite.download()
+        download_path = catalog_composite.download()
+
+        data = FileWrapper(open(download_path, 'rb'))
 
         return data
 
+    @staticmethod
+    def download_file(file_id):
+        """
+        Скачать указанный файл.
+        """
+        f = FileGateway.find_by_id(file_id)
+
+        f_component = DownloadableFile(f)
+        download_path = f_component.download()
+
+        data = FileWrapper(open(download_path, 'rb'))
+
+        return data
 
     @staticmethod
     def save_file(file_data, user_id, cat_id):
@@ -124,7 +137,7 @@ class TransactionScript:
         if not cat_id:
             raise ValueError('Не указан параметр cat_id')
         file = file_data['file']
-        TransactionScript.download_file(file)
+        TransactionScript.upload_file(file)
         FileGateway.create(file_data, user_id, cat_id)
 
     @staticmethod

@@ -5,8 +5,6 @@ from django.contrib import messages
 from django.http import HttpResponse
 from django.shortcuts import render, redirect
 
-from wsgiref.util import FileWrapper
-
 
 from auth_utils import login_required
 from user_app.business_logic_layer.transact_script import (PERMISSION_WR,
@@ -60,15 +58,27 @@ def catalogue_detail(request, cat_id):
 
 
 @login_required
+def file_download(request, file_id):
+    """Скачать файл."""
+    file = Ts.get_file(file_id)
+    data = Ts.download_file(file_id)
+
+    response = HttpResponse(data)
+
+    response['Content-Disposition'] = 'attachment; filename={file_name}'.format(
+        file_name=os.path.basename(file.path)
+    )
+
+    return response
+
+
+@login_required
 def catalogue_download(request, cat_id):
     """Скачать каталог."""
     cat = Ts.get_catalogue(cat_id)
-    archive_path = Ts.download_catalogue(cat_id)
+    data = Ts.download_catalogue(cat_id)
 
-    filename = archive_path
-    wrapper = FileWrapper(open(filename, 'rb'))
-    response = HttpResponse(wrapper)
-    response['Content-Length'] = os.path.getsize(filename)
+    response = HttpResponse(data)
     response['Content-Disposition'] = 'attachment; filename={}.zip'.format(cat.title)
 
     return response

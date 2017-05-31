@@ -9,6 +9,9 @@ from file_server.settings import MEDIA_DIR
 class DownloadableComponent:
     @abstractmethod
     def download(self):
+        """
+        Скачать компонент.
+        """
         pass
 
 
@@ -17,8 +20,11 @@ class DownloadableFile(DownloadableComponent):
         self.file = file
 
     def download(self):
-        # TODO
-        pass
+        """
+        Скачать файл.
+        """
+        path = os.path.join(MEDIA_DIR, str(self.file.path))
+        return path
 
 
 class DownloadableCatalog(DownloadableComponent):
@@ -40,9 +46,7 @@ class DownloadableCatalog(DownloadableComponent):
         zipf = zipfile.ZipFile(zipfile_path, 'w', zipfile.ZIP_DEFLATED)
         for path in paths:
             zipf.write(
-                # open(
-                    os.path.join(MEDIA_DIR, str(path)), path
-                # )
+                os.path.join(MEDIA_DIR, str(path)), path
             )
 
         zipf.close()

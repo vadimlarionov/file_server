@@ -35,7 +35,7 @@
                                 </form>
                             </td>
                             <td>
-                                <a href="{}" type="submit" class="btn btn-success btn-xs">Скачать</a>
+                                <a href="{% url 'file-download' f.file.id %}" type="submit" class="btn btn-success btn-xs">Скачать</a>
                             </td>
                         {% endif %}
                     </tr>
