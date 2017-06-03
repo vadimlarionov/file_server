@@ -105,9 +105,7 @@ class TransactionScript:
         for f in downloadable_files:
             catalog_composite.add(f)
 
-        download_path = catalog_composite.download()
-
-        data = FileWrapper(open(download_path, 'rb'))
+        data = catalog_composite.download()
 
         return data
 
@@ -119,9 +117,7 @@ class TransactionScript:
         f = FileGateway.find_by_id(file_id)
 
         f_component = DownloadableFile(f)
-        download_path = f_component.download()
-
-        data = FileWrapper(open(download_path, 'rb'))
+        data = f_component.download()
 
         return data
 

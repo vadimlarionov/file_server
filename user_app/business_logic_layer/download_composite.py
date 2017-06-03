@@ -2,6 +2,7 @@ import os
 from abc import abstractmethod
 
 import zipfile
+from wsgiref.util import FileWrapper
 
 from file_server.settings import MEDIA_DIR
 
@@ -24,7 +25,8 @@ class DownloadableFile(DownloadableComponent):
         Скачать файл.
         """
         path = os.path.join(MEDIA_DIR, str(self.file.path))
-        return path
+        data = FileWrapper(open(path, 'rb'))
+        return data
 
 
 class DownloadableCatalog(DownloadableComponent):
@@ -51,4 +53,6 @@ class DownloadableCatalog(DownloadableComponent):
 
         zipf.close()
 
-        return zipfile_path
+        data = FileWrapper(open(zipfile_path, 'rb'))
+
+        return data
