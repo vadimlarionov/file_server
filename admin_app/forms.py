@@ -1,6 +1,6 @@
 from django import forms
 
-from admin_app.data_access_layer.active_records import UserActiveRecord
+from admin_app.user.user import UserActiveRecord
 
 
 class LoginForm(forms.Form):
@@ -31,12 +31,6 @@ class AddGroupForm(forms.Form):
 
 class SearchForm(forms.Form):
     query = forms.CharField(max_length=256, min_length=1)
-
-
-class AddUserToGroupForm(forms.Form):
-    user_id = forms.IntegerField(min_value=1)
-    group_id = forms.IntegerField(min_value=1)
-    permission = forms.IntegerField(min_value=1, max_value=3)
 
 
 class UserGroupForm(forms.Form):

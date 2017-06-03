@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Report</title>
+</head>
+<body>
+
+{% if data %}
+    <table>
+        <tr>
+            {% for header in headers%}
+                <th>{{ header }}</th>
+            {% endfor %}
+        </tr>
+        {% for row in data %}
+            <tr>
+                {% for value in row %}
+                    <td>{{ value }}</td>
+                {% endfor %}
+            </tr>
+        {% endfor %}
+    </table>
+{% else %}
+    <h3>Нет данных для отчёта</h3>
+{% endif %}
+
+</body>
+</html>

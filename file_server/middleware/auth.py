@@ -1,4 +1,5 @@
-from admin_app.data_access_layer.active_records import SessionActiveRecord, UserActiveRecord
+from admin_app.user.session import SessionActiveRecord
+from admin_app.user.user import UserActiveRecord
 
 
 class CustomAuthMiddleware:

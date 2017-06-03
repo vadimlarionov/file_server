@@ -20,6 +20,8 @@ urlpatterns = [
     url(r'^admin/user_groups/add_user', views.add_user_to_group, name='add-user-to-group'),
     url(r'^admin/user_groups/delete_user', views.delete_user_from_group, name='delete-user-from-group'),
     url(r'^admin/groups/(?P<group_id>\d+)', views.group_catalogues),
+    url(r'^admin/users/report', views.users_report, name='users-report'),
+    url(r'^admin/groups/report', views.groups_report, name='groups-report'),
 
     url(r'^user/(?P<user_id>\d+)/catalogues', user_views.list_catalogues),
     url(r'^user/catalogues/add', user_views.add_catalogue, name='catalogue-add'),

@@ -1,12 +1,18 @@
 from collections import namedtuple
 
 from django.contrib import messages
+from django.http import HttpResponse
 from django.shortcuts import render, redirect
 
-from admin_app.business_logic_layer.logic import *
-from admin_app.data_access_layer import exceptions
+from admin_app.exceptions import exceptions
 from admin_app.forms import *
+from admin_app.group.groups import Group
+from admin_app.reports.reports import ReportFactory, ReportType
+from admin_app.user.session import Session
+from admin_app.user.user import User
 from auth_utils import login_required, admin_required
+
+report_factory = ReportFactory()
 
 
 def index(request):
@@ -137,7 +143,7 @@ def delete_user_from_group(request):
 def group_catalogues(request, group_id):
     """Информация о группе"""
     group = Group.get_by_id(group_id)
-    group_catalogues_list = Catalogue.get_groups(group_id)
+    group_catalogues_list = Group.get_catalogues(group_id)
     other_catalogues = Group.get_catalogues_without_group(group_id)
 
     context = {'g': group, 'g_c_list': group_catalogues_list, 'other_catalogues': other_catalogues}
@@ -152,7 +158,8 @@ def add_catalogue_to_group(request):
     if form.is_valid():
         try:
             Group.add_catalogue(form.cleaned_data['group_id'],
-                                form.cleaned_data['catalogue_id'], form.cleaned_data['permission'])
+                                form.cleaned_data['catalogue_id'],
+                                form.cleaned_data['permission'])
         except Exception as e:
             messages.warning(request, e)
     return redirect(request.META.get('HTTP_REFERER', '/'))
@@ -174,3 +181,37 @@ def change_catalogues_in_group(request):
         else:
             messages.warning(request, 'Unexpected action type')
     return redirect(request.META.get('HTTP_REFERER', '/'))
+
+
+@login_required
+@admin_required
+def users_report(request):
+    t = request.GET.get('report_type', '')
+    if t == 'pdf':
+        report = report_factory.create_report(ReportType.users_pdf)
+        response = HttpResponse(report.get_report(), content_type='application/pdf')
+        response['Content-Disposition'] = 'attachment; filename=users_report.pdf'
+    elif t == 'csv':
+        report = report_factory.create_report(ReportType.users_csv)
+        response = HttpResponse(report.get_report(), content_type='text/csv')
+        response['Content-Disposition'] = 'attachment; filename="users_report.csv"'
+    else:
+        response = redirect(request.META.get('HTTP_REFERER', '/'))
+    return response
+
+
+@login_required
+@admin_required
+def groups_report(request):
+    t = request.GET.get('report_type', '')
+    if t == 'pdf':
+        report = report_factory.create_report(ReportType.groups_pdf)
+        response = HttpResponse(report.get_report(), content_type='application/pdf')
+        response['Content-Disposition'] = 'attachment; filename=groups_report.pdf'
+    elif t == 'csv':
+        report = report_factory.create_report(ReportType.groups_csv)
+        response = HttpResponse(report.get_report(), content_type='text/csv')
+        response['Content-Disposition'] = 'attachment; filename="groups_report.csv"'
+    else:
+        response = redirect(request.META.get('HTTP_REFERER', '/'))
+    return response

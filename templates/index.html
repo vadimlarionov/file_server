@@ -16,7 +16,39 @@
                     <button type="submit" class="btn btn-lg btn-primary">Войти</button>
                 </form>
             {% else %}
-                <h3>Вы авторизованы</h3>
+                {% if request.user.is_admin %}
+                    <div class="row">
+                        <form action="{% url 'users-report' %}" method="get" target="_blank">
+                            <input type="hidden" name="report_type" value="pdf">
+                            <button type="submit" class="btn btn-primary">Отчёт по пользователям в PDF</button>
+                        </form>
+                    </div>
+
+                    <div class="row margin-top-10">
+                        <form action="{% url 'users-report' %}" method="get" target="_blank">
+                            <input type="hidden" name="report_type" value="csv">
+                            <button type="submit" class="btn btn-primary">Отчёт по пользователям в CSV</button>
+                        </form>
+                    </div>
+
+                    <div class="row margin-top-10">
+                        <form action="{% url 'groups-report' %}" method="get" target="_blank">
+                            <input type="hidden" name="report_type" value="pdf">
+                            <button type="submit" class="btn btn-primary">Отчёт по группам в PDF</button>
+                        </form>
+                    </div>
+
+                    <div class="row margin-top-10">
+                        <form action="{% url 'groups-report' %}" method="get" target="_blank">
+                            <input type="hidden" name="report_type" value="csv">
+                            <button type="submit" class="btn btn-primary">Отчёт по группам в CSV</button>
+                        </form>
+                    </div>
+
+                {% else %}
+                    <h3>Вы авторизованы</h3>
+                {% endif %}
+
             {% endif %}
         </div>
     </div>
